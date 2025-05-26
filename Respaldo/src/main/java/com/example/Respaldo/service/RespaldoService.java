@@ -20,7 +20,7 @@ public class RespaldoService {
         Respaldo respaldo = new Respaldo();
 
         try {
-            // Crear carpeta respaldos si no existe aunque la tuve que crear de todas formas
+            // Crear carpeta respaldos si no existe 
             File carpeta = new File("respaldos");
             if (!carpeta.exists()) {
                 carpeta.mkdirs();
