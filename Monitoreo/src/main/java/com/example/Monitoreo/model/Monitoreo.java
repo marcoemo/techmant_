@@ -26,8 +26,6 @@ public class Monitoreo {
     private LocalDate fechaEvento;
 
     private boolean resuelto;
-
-    private Long diagnosticoId; //fk a diagnostico
 }
 
 enum TipoEvento {
