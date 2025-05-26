@@ -2,7 +2,6 @@ package com.example.GestionSolicitudes.service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -17,16 +16,9 @@ import com.example.GestionSolicitudes.repository.SolicitudRepository;
 public class SolicitudService {
 
     private final SolicitudRepository solicitudRepository;
-    private final DiagnosticoClient diagnosticoClient;
-    private final AsignacionClient asignacionClient;
-
-
     public SolicitudService(SolicitudRepository solicitudRepository, DiagnosticoClient diagnosticoClient, AsignacionClient asignacionClient) {
         this.solicitudRepository = solicitudRepository;
-        this.diagnosticoClient = diagnosticoClient;
-        this.asignacionClient = asignacionClient;
     }
-    
     
     //Crear una nueva solicitud con la fecha actual
     public Solicitud crearS(Solicitud solicitud) {
@@ -55,31 +47,4 @@ public class SolicitudService {
     return solicitudRepository.save(solicitud);
     }
 
-
-    
-    //obtener una solicitud con su tecnico REVISAR BIEN
-        public Map<String, Object> obtenerSolicitudConTecnico(Long solicitudId) {
-        Solicitud solicitud = solicitudRepository.findById(solicitudId).orElse(null);
-        if (solicitud == null) return null;
-
-        Map<String, Object> tecnico = asignacionClient.obtenerAsigancionPorId(solicitud.getIdAsignacion());
-
-        return Map.of(
-            "solicitud", solicitud,
-            "tecnico", tecnico
-        );
-        }
-
-    //obtener una solicitud con su diagnostico REVISAR BIEN
-        public Map<String, Object> obtenerDetalleSolicitudConDiagnostico(Long solicitudId) {
-            var solicitud = solicitudRepository.findById(solicitudId).orElse(null);
-            if (solicitud == null) return null;
-
-            Map<String, Object> diagnostico = diagnosticoClient.obtenerDiagnosticoPorId(solicitud.getDiagnosticoId());
-
-            return Map.of(
-                "solicitud", solicitud,
-                "diagnostico", diagnostico
-            );
-        }
 }

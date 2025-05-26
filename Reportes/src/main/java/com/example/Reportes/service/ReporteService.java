@@ -29,14 +29,5 @@ public class ReporteService {
     public Reporte obtenerPorId(Long id) {
         return repo.findById(id).orElse(null);
     }
-    
-    //obtener reportes por asignacion
-    public List<Reporte> obtenerPorAsignacion(Long usuarioId) {
-        return repo.findAll().stream()
-            .filter(r -> r.getIdAsignacion().equals(usuarioId))
-            .toList();
-    }
-
-    //eliminar un reporte ??
 
 }
