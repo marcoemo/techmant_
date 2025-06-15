@@ -4,24 +4,27 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 @Entity
-@Table(name="Resenias")
+@Table(name = "Resenias")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class Resenas {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        @Column(name="IdResenia")
-        private Long idResena;
 
-        @Column(name="DescripcionResenia")
-        private String resena;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "IdResenia")
+    private Long idResena;
 
-        @Column(name="Calificacion(1-5)",nullable = false)
-        private Integer calificacion;
+    @Column(name = "DescripcionResenia", nullable = false)
+    private String resena;
 
+    @Column(name = "Calificacion", nullable = false)
+    private Integer calificacion;
+
+    @Column(name = "usuario_id", nullable = false)
+    private Long usuarioId;
+}
 
         /*
              {
@@ -29,4 +32,3 @@ public class Resenas {
                 "calificacion": 5
             }
          */
-}

@@ -46,11 +46,22 @@ public class Usuario {
 
 /*
 {
+  {
   "nombre": "Juan Pérez",
-  "correo": "juan.perez@techmant.cl",
-  "contrasena": "contrasena123",
+  "correo": "juan.perez@ejemplo.com",
+  "contrasena": "clave123",
   "rol": {
-    "idRol": 1 //ver en bd para seleccionar rol correspondiente
+    "idRol": 5,
+    "nombreRol": "USUARIO"
   }
 }
+  1 → ADMINISTRADOR
+
+  2 → TÉCNICO
+
+  3 → SUPERVISOR
+
+  4 → SOPORTE
+
+  5 → USUARIO
  */

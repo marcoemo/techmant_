@@ -1,19 +1,26 @@
 package com.example.GestionDeUsuarios.service;
 
-import java.util.List;
-
+import com.example.GestionDeUsuarios.model.Rol;
+import com.example.GestionDeUsuarios.model.Usuario;
+import com.example.GestionDeUsuarios.repository.RolRepository;
+import com.example.GestionDeUsuarios.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.GestionDeUsuarios.model.Usuario;
-import com.example.GestionDeUsuarios.repository.UsuarioRepository;
+import jakarta.annotation.PostConstruct;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UsuarioService {
 
     @Autowired
     private final UsuarioRepository UR;
+
+    @Autowired
+    private RolRepository rolRepository;
 
     private final PasswordEncoder PE;
 
@@ -22,10 +29,14 @@ public class UsuarioService {
         this.PE = PE;
     }
 
-    // Método para guardar un nuevo usuario con su contraseña encriptada
-    public Usuario guardarUsuario(Usuario usu) {
+    // Crear usuario con validación de correo duplicado
+    public String guardarUsuario(Usuario usu) {
+        if (UR.existsByCorreo(usu.getCorreo())) {
+            return "Ya existe un usuario con ese correo";
+        }
         usu.setContrasena(PE.encode(usu.getContrasena()));
-        return UR.save(usu);
+        UR.save(usu);
+        return "Usuario creado correctamente";
     }
 
     // Obtener todos los usuarios
@@ -33,8 +44,49 @@ public class UsuarioService {
         return UR.findAll();
     }
 
-    // Buscar usuario por correo (para que autenticación lo consulte)
-    public Usuario obtenerPorCorreo(String correo) {
-        return UR.findByCorreo(correo).orElse(null);
+    // Buscar por correo
+    public Optional<Usuario> buscarPorCorreo(String correo) {
+        return UR.findByCorreo(correo);
+    }
+
+    // Eliminar usuario
+    public boolean eliminarUsuario(Long id) {
+        if (UR.existsById(id)) {
+            UR.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
+    // Editar usuario
+    public Optional<Usuario> editarUsuario(Long id, Usuario datosActualizados) {
+        Optional<Usuario> existente = UR.findById(id);
+        if (existente.isPresent()) {
+            Usuario u = existente.get();
+            u.setNombre(datosActualizados.getNombre());
+            u.setCorreo(datosActualizados.getCorreo());
+            u.setRol(datosActualizados.getRol());
+            return Optional.of(UR.save(u));
+        }
+        return Optional.empty();
+    }
+
+    // 🔥 Crear usuario admin por defecto al iniciar microservicio
+    @PostConstruct
+    public void crearAdminPorDefecto() {
+        if (!UR.existsByCorreo("admin@admin.cl")) {
+            Rol rolAdmin = rolRepository.findById(1L).orElse(null);
+            if (rolAdmin != null) {
+                Usuario admin = new Usuario();
+                admin.setNombre("admin");
+                admin.setCorreo("admin@admin.cl");
+                admin.setContrasena(PE.encode("admin123"));
+                admin.setRol(rolAdmin);
+                UR.save(admin);
+                System.out.println("✅ Usuario admin creado automáticamente");
+            } else {
+                System.out.println("⚠️ No se encontró el rol ADMINISTRADOR (ID 1), no se creó el usuario admin");
+            }
+        }
     }
 }
