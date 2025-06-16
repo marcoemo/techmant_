@@ -35,7 +35,9 @@ public class Solicitud {
 
     private Long idAsignacion; // Fk de usuario (referencia)
 
-    private Long reporteId; // Fk de reporte (referencia)
+    private Long reporteId; // Fk de reporte (referencia
+    
+    private Long usuarioId;    //  Usuario que creó la solicitud
 
 }
 

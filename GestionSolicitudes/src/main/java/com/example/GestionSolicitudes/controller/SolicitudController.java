@@ -17,13 +17,11 @@ public class SolicitudController {
         this.svc = svc;
     }
 
-    // Obtener todas las solicitudes registradas
     @GetMapping
     public List<Solicitud> obtenerSolicitudes() {
         return svc.obtenerTodas();
     }
 
-    // Obtener una solicitud por ID
     @GetMapping("/{id}")
     public ResponseEntity<Solicitud> obtener(@PathVariable Long id){
         return svc.obtenerPorId(id)
@@ -31,13 +29,11 @@ public class SolicitudController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // Crear una nueva solicitud
     @PostMapping
     public Solicitud crear(@RequestBody Solicitud solicitud) {
         return svc.crearS(solicitud);
     }
 
-    // Cambiar el estado de una solicitud
     @PutMapping("/{id}/estado")
     public ResponseEntity<Solicitud> cambiarEstado(
             @PathVariable Long id,
@@ -50,5 +46,26 @@ public class SolicitudController {
             return ResponseEntity.badRequest().build();
         }
     }
-    
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Solicitud> actualizar(@PathVariable Long id, @RequestBody Solicitud solicitud) {
+        return svc.actualizar(id, solicitud)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        return svc.eliminar(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/usuario/{usuarioId}")
+    public List<Solicitud> obtenerPorUsuario(@PathVariable Long usuarioId) {
+        return svc.filtrarPorUsuario(usuarioId);
+    }
+
+    @GetMapping("/tecnico/{idAsignacion}")
+    public List<Solicitud> obtenerPorTecnico(@PathVariable Long idAsignacion) {
+        return svc.filtrarPorTecnico(idAsignacion);
+    }
 }
