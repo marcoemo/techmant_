@@ -30,4 +30,16 @@ public class TicketService {
     public Ticket saveTicket(Ticket ticket){
         return TR.save(ticket);
     }
+     public Ticket actualizarTicket(Long id, Ticket nuevo) {
+        Ticket actual = getTicket(id);
+        actual.setDudaSug(nuevo.getDudaSug());
+        actual.setUsuarioId(nuevo.getUsuarioId());
+        return TR.save(actual);
+    }
+     public void eliminarTicket(Long id) {
+        TR.deleteById(id);
+    }
+    public List<Ticket> getTicketsPorUsuario(Long usuarioId) {
+    return TR.findByUsuarioId(usuarioId);
+}
 }
