@@ -38,5 +38,5 @@ public class Equipo {
     private String numeroSerie;
 
     // id del usuario propietario del equipo
-    private Long usuarioId;
+    private Long idUsuario;
 }
