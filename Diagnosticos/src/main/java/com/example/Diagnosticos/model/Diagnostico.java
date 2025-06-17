@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 
 @Entity
@@ -18,10 +17,6 @@ public class Diagnostico {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long diagnosticoId;
 
-    @ManyToOne
-    @JoinColumn(name = "equipo_id")
-    private Equipo equipo;
-
     @Column(length = 1000)
     private String detalle;
     
@@ -33,6 +28,8 @@ public class Diagnostico {
 
     @Column(nullable = false)
     private int costoManoObra;
+
+    private Long equipoId;
 }
 
 enum EstadoDiagnostico {

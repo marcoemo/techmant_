@@ -37,4 +37,9 @@ public class DiagnosticoController {
         Diagnostico actualizado = svc.actualizar(id, d);
         return actualizado != null ? ResponseEntity.ok(actualizado) : ResponseEntity.notFound().build();
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        svc.eliminarPorId(id);
+        return ResponseEntity.noContent().build();
+    }
 }

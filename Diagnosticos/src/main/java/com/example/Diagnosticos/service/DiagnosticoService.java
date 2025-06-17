@@ -41,5 +41,10 @@ public class DiagnosticoService {
         }
         return null;
     }
-    // metodo eliminar ??
+    //eliminar un diagnóstico por id
+    public void eliminarPorId(Long id) {
+        if (diagRepo.existsById(id)) {
+            diagRepo.deleteById(id);
+        }
+    }
 }
