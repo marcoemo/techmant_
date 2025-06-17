@@ -1,27 +1,25 @@
-package com.example.Diagnosticos.Client;
-
-import java.util.Map;
+package com.example.Equipo.client;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
-public class EquipoClient {
-    
+public class UsuarioClient {
+
     private final WebClient webClient;
 
-    public EquipoClient(@Value("${equipo-service.url}") String equipoUrl) {
+    public UsuarioClient(@Value("${usuario-service.url}") String equipoUrl) {
         this.webClient = WebClient.builder()
                 .baseUrl(equipoUrl)
                 .build();
     }
 
-    public Map<String, Object> obtenerEquipoPorId(Long id) {
+    public String obtenerUsuarioPorId(Long id) {
         return this.webClient.get()
-                .uri("/equipos/{id}", id)
+                .uri("/usuario/{id}", id)
                 .retrieve()
-                .bodyToMono(Map.class)
+                .bodyToMono(String.class)
                 .block();
     }
 }

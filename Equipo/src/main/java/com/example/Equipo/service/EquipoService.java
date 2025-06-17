@@ -29,7 +29,7 @@ public class EquipoService {
     // obtener equipos por id de usuario
     public List<Equipo> buscarPorUsuario(Long usuarioId) {
         return equipRepo.findAll().stream()
-                .filter(e -> e.getUsuarioId() != null && e.getUsuarioId().equals(usuarioId))
+                .filter(e -> e.getIdUsuario() != null && e.getIdUsuario().equals(usuarioId))
                 .toList();
     }
 
@@ -40,7 +40,7 @@ public class EquipoService {
             existente.setMarca(nuevo.getMarca());
             existente.setModelo(nuevo.getModelo());
             existente.setNumeroSerie(nuevo.getNumeroSerie());
-            existente.setUsuarioId(nuevo.getUsuarioId());
+            existente.setIdUsuario(nuevo.getIdUsuario());
             return equipRepo.save(existente);
         }
         return null;
