@@ -49,6 +49,7 @@ public class TicketController {
     public ResponseEntity<Ticket> guardarTicket(@RequestBody Ticket nuevo) {
         return ResponseEntity.status(201).body(TS.saveTicket(nuevo));
     }
+    
      @GetMapping("/usuario/{usuarioId}")
     public List<Ticket> ticketsPorUsuario(@PathVariable Long usuarioId) {
         return TS.getTicketsPorUsuario(usuarioId);

@@ -1,3 +1,4 @@
+
 package com.example.Seguimiento.controller;
 
 import com.example.Seguimiento.model.Seguimiento;
@@ -11,27 +12,44 @@ import java.util.List;
 @RequestMapping("/seguimientos")
 public class SeguimientoController {
 
-    private final SeguimientoService seguimientoService;
+    private final SeguimientoService service;
 
-    public SeguimientoController(SeguimientoService seguimientoService) {
-        this.seguimientoService = seguimientoService;
+    public SeguimientoController(SeguimientoService service) {
+        this.service = service;
     }
 
     @GetMapping
-    public List<Seguimiento> obtenerSolis() {
-        return seguimientoService.obtenerSolis();
+    public List<Seguimiento> obtenerTodos() {
+        return service.obtenerTodos();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Seguimiento> obtener(@PathVariable Long id) {
-        return seguimientoService.obtenerId(id)
+    public ResponseEntity<Seguimiento> obtenerPorId(@PathVariable Long id) {
+        return service.obtenerPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Seguimiento> crear(@RequestBody Seguimiento seguimiento) {
-        Seguimiento nuevo = seguimientoService.guardarSeguimiento(seguimiento);
-        return ResponseEntity.status(201).body(nuevo);
+    public ResponseEntity<Seguimiento> crear(@RequestBody Seguimiento nuevo) {
+        return ResponseEntity.status(201).body(service.crear(nuevo));
     }
-}
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Seguimiento> actualizar(@PathVariable Long id, @RequestBody Seguimiento nuevo) {
+        return service.actualizar(id, nuevo)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        service.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/solicitud/{solicitudId}")
+    public List<Seguimiento> porSolicitud(@PathVariable Long solicitudId) {
+        return service.filtrarPorSolicitud(solicitudId);
+    }
+} 

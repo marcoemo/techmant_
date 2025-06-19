@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 
 @Service
 @Transactional
+//sd
 
 public class TicketService {
     @Autowired
@@ -41,5 +42,6 @@ public class TicketService {
     }
     public List<Ticket> getTicketsPorUsuario(Long usuarioId) {
     return TR.findByUsuarioId(usuarioId);
+    
 }
 }
