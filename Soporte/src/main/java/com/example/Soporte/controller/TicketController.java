@@ -49,15 +49,17 @@ public class TicketController {
     public ResponseEntity<Ticket> guardarTicket(@RequestBody Ticket nuevo) {
         return ResponseEntity.status(201).body(TS.saveTicket(nuevo));
     }
-    
+    //buscar ticket por usuario
      @GetMapping("/usuario/{usuarioId}")
     public List<Ticket> ticketsPorUsuario(@PathVariable Long usuarioId) {
         return TS.getTicketsPorUsuario(usuarioId);
     }
+     //Actualizar ticket
      @PutMapping("/{id}")
     public ResponseEntity<Ticket> actualizar(@PathVariable Long id, @RequestBody Ticket nuevo) {
         return ResponseEntity.ok(TS.actualizarTicket(id, nuevo));
     }
+    //Borrar
      @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         TS.eliminarTicket(id);

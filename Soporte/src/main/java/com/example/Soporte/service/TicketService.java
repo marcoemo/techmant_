@@ -31,6 +31,7 @@ public class TicketService {
     public Ticket saveTicket(Ticket ticket){
         return TR.save(ticket);
     }
+    
      public Ticket actualizarTicket(Long id, Ticket nuevo) {
         Ticket actual = getTicket(id);
         actual.setDudaSug(nuevo.getDudaSug());
