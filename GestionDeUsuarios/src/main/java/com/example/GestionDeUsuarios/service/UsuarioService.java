@@ -71,7 +71,7 @@ public class UsuarioService {
         return Optional.empty();
     }
 
-    // 🔥 Crear usuario admin por defecto al iniciar microservicio
+    //  Crear usuario admin por defecto al iniciar microservicio
     @PostConstruct
     public void crearAdminPorDefecto() {
         if (!UR.existsByCorreo("admin@admin.cl")) {
@@ -83,9 +83,9 @@ public class UsuarioService {
                 admin.setContrasena(PE.encode("admin123"));
                 admin.setRol(rolAdmin);
                 UR.save(admin);
-                System.out.println("✅ Usuario admin creado automáticamente");
+                System.out.println(" Usuario admin creado automáticamente");
             } else {
-                System.out.println("⚠️ No se encontró el rol ADMINISTRADOR (ID 1), no se creó el usuario admin");
+                System.out.println(" No se encontró el rol ADMINISTRADOR (ID 1), no se creó el usuario admin");
             }
         }
     }
