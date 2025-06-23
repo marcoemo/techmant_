@@ -6,18 +6,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name = "Tickets")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Ticket {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long IdTicket;
 
-  
+    @Column(name = "DudasReclamos", nullable = false)
     private String DudaSug;
 
-
+    @Column(nullable = false)
     private Long usuarioId;
+    
+
+
 }
 
 /*
