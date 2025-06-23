@@ -11,6 +11,5 @@ import com.example.GestionSolicitudes.model.Solicitud;
 public interface SolicitudRepository extends JpaRepository<Solicitud, Long> {
 
     List<Solicitud> findByUsuarioId(Long usuarioId);
-    List<Solicitud> findByIdAsignacion(Long idAsignacion);
 }
 

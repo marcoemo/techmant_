@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import com.example.Equipo.model.Categoria;
 import com.example.Equipo.repository.CategoriaRepository;
 
+import jakarta.annotation.PostConstruct;
+
 @Service
 public class CategoriaService {
 
@@ -39,6 +41,29 @@ public class CategoriaService {
     public void eliminarPorId(Long id) {
         if (cateRepo.existsById(id)) {
             cateRepo.deleteById(id);
+        }
+    }
+
+    // Crear categorias iniciales
+    @PostConstruct
+    public void init() {
+        List<String> nombresCategorias = List.of(
+            "Laptops",
+            "Impresoras",
+            "celulares",
+            "Monitores"
+        );
+        
+        crearCategoriasSiNoExisten(nombresCategorias);
+    }
+    
+    private void crearCategoriasSiNoExisten(List<String> nombres) {
+        for (String nombre : nombres) {
+            if (!cateRepo.existsByNombre(nombre)) {
+                Categoria nuevaCategoria = new Categoria();
+                nuevaCategoria.setNombre(nombre);
+                cateRepo.save(nuevaCategoria);
+            }
         }
     }
 }

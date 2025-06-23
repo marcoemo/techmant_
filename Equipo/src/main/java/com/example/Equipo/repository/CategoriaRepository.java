@@ -7,5 +7,5 @@ import com.example.Equipo.model.Categoria;
 
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
-    
+    boolean existsByNombre(String nombre);
 }

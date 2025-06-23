@@ -1,8 +1,10 @@
 package com.example.GestionSolicitudes.model;
 
-import java.sql.Date;
-import java.time.LocalDate;
 
+import java.time.LocalDate;
+import java.util.Date;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,43 +14,31 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 
+@Schema(description = "Modelo de Solicitud de Servicio")
 public class Solicitud {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(description = "Identificador único de la solicitud")
     private Long solicitudId;
-  
+
     @Column(nullable = false, length = 500)
+    @Schema(description = "Descripción del problema reportado en la solicitud")
     private String descripcionProblema;
 
     @Column(nullable = false)
+    @Schema(description = "Fecha de creación de la solicitud")
     private LocalDate fechaCreacion;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
+    @Schema(description = "Fecha de cierre de la solicitud")
     private Date fechaCierre;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private SolicitudEstado estado; // Enum con los estados de la solicitud
-   
-    private Long diagnosticoId;   // Fk de diagnostico LISTO
+    @Column(nullable = false, length = 20)
+    @Schema(description = "Estado actual de la solicitud")
+    private String estado;
 
-    private Long idAsignacion; // Fk de usuario (referencia)
-
-    private Long reporteId; // Fk de reporte (referencia
+    @Schema(description = "Identificador del usuario que creó la solicitud")
+    private Long usuarioId;
     
-    private Long usuarioId;    //  Usuario que creó la solicitud
-
 }
-
-
-// {
-//   "usuarioId": 1,
-//   "equipoId": 2,
-
-//   "descripcionProblema": "No enciende el equipo",
-//   "estado": "NUEVA",
-//   "costoEstimado": 0,
-//   "total": 0,
-//   "diagnosticoId": null
-// }

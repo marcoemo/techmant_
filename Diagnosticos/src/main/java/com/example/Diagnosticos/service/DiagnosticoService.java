@@ -1,12 +1,14 @@
 package com.example.Diagnosticos.service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.example.Diagnosticos.model.Diagnostico;
 import com.example.Diagnosticos.repository.DiagnosticoRepository;
+
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class DiagnosticoService {
@@ -17,10 +19,16 @@ public class DiagnosticoService {
         this.diagRepo = diagRepo;
     }
     // Crear un nuevo diagnóstico
-    public Diagnostico crear(Diagnostico d) {
-    d.setFechaDiagnostico(LocalDate.now());
-    return diagRepo.save(d);
-}
+    public Diagnostico agregarDiagnostico(String detalle, String estado, 
+                                LocalDateTime localDateTime,Long IdAsignacion) {
+        Diagnostico nuevo = new Diagnostico();
+        nuevo.setDetalle(detalle);
+        nuevo.setEstado(estado);
+        nuevo.setFechaDiagnostico(localDateTime);
+        nuevo.setIdAsignacion(IdAsignacion);
+        return diagRepo.save(nuevo);
+    }
+    
     // obtener todos los diagnósticos
     public List<Diagnostico> obtenerTodos() {
         return diagRepo.findAll();
@@ -36,7 +44,6 @@ public class DiagnosticoService {
             existente.setDetalle(nuevo.getDetalle());
             existente.setEstado(nuevo.getEstado());
             existente.setFechaDiagnostico(nuevo.getFechaDiagnostico());
-            existente.setCostoManoObra(nuevo.getCostoManoObra());
             return diagRepo.save(existente);
         }
         return null;
@@ -45,6 +52,26 @@ public class DiagnosticoService {
     public void eliminarPorId(Long id) {
         if (diagRepo.existsById(id)) {
             diagRepo.deleteById(id);
+        }
+    }
+
+    @PostConstruct
+    public void init() {
+        cargarDiagnosticoIniciales();
+    }
+
+    private void cargarDiagnosticoIniciales() {
+        List<Diagnostico> diagnosticosIniciales = List.of(
+            agregarDiagnostico("No procesa bien", "Disponible", LocalDateTime.now(), 1L),
+            agregarDiagnostico("Lentitud de carga", "No disponible", LocalDateTime.now(), 2L),
+            agregarDiagnostico("Sistema interno dañado", "En espera", LocalDateTime.now(), 3L)
+        );
+        
+        for (Diagnostico diagnostico : diagnosticosIniciales) {
+            // Verificar si ya existe por ID
+            if (!diagRepo.existsById(diagnostico.getIdAsignacion())) {
+                diagRepo.save(diagnostico);
+            }
         }
     }
 }

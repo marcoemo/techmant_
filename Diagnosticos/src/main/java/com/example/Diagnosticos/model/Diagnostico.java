@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "diagnosticos")
@@ -20,21 +20,12 @@ public class Diagnostico {
     @Column(length = 1000)
     private String detalle;
     
-    @Enumerated(EnumType.STRING)
-    private EstadoDiagnostico estado;
+    @Column(nullable = false, length = 100)
+    private String estado;
 
     @Column(nullable = false)
-    private LocalDate fechaDiagnostico;
-
-    @Column(nullable = false)
-    private int costoManoObra;
-
-    private Long equipoId;
-
-    private Long usuarioId;
+    private LocalDateTime fechaDiagnostico;
+    
+    private Long IdAsignacion;
 }
 
-enum EstadoDiagnostico {
-    PENDIENTE,
-    COMPLETADO
-}  

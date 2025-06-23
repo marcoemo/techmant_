@@ -1,29 +1,36 @@
 package com.example.GestionSolicitudes.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.example.GestionSolicitudes.client.AsignacionClient;
-import com.example.GestionSolicitudes.client.DiagnosticoClient;
+
 import com.example.GestionSolicitudes.model.Solicitud;
-import com.example.GestionSolicitudes.model.SolicitudEstado;
 import com.example.GestionSolicitudes.repository.SolicitudRepository;
+
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class SolicitudService {
 
     private final SolicitudRepository solicitudRepository;
 
-    public SolicitudService(SolicitudRepository solicitudRepository, DiagnosticoClient diagnosticoClient, AsignacionClient asignacionClient) {
+    public SolicitudService(SolicitudRepository solicitudRepository) {
         this.solicitudRepository = solicitudRepository;
     }
 
-    public Solicitud crearS(Solicitud solicitud) {
-        solicitud.setFechaCreacion(LocalDate.now());
-        return solicitudRepository.save(solicitud);
+    public Solicitud agregarSolicitud(String descripcion, LocalDate fechaCreacion, Date fechaCierre, String estado, Long usuarioId) {
+        Solicitud s = new Solicitud();
+        s.setDescripcionProblema(descripcion);
+        s.setFechaCreacion(fechaCreacion);
+        s.setFechaCierre(fechaCierre);
+        s.setEstado(estado);
+        s.setUsuarioId(usuarioId);
+        return solicitudRepository.save(s);
     }
 
     public List<Solicitud> obtenerTodas() {
@@ -34,21 +41,9 @@ public class SolicitudService {
         return solicitudRepository.findById(id);
     }
 
-    public Solicitud cambiarEstado(Long id, String estadoTexto) {
-        Solicitud solicitud = solicitudRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
-
-        SolicitudEstado nuevoEstado = SolicitudEstado.valueOf(estadoTexto.toUpperCase());
-        solicitud.setEstado(nuevoEstado);
-
-        return solicitudRepository.save(solicitud);
-    }
-
     public Optional<Solicitud> actualizar(Long id, Solicitud solicitudNueva) {
         return solicitudRepository.findById(id).map(s -> {
             s.setDescripcionProblema(solicitudNueva.getDescripcionProblema());
-            s.setDiagnosticoId(solicitudNueva.getDiagnosticoId());
-            s.setIdAsignacion(solicitudNueva.getIdAsignacion());
             s.setUsuarioId(solicitudNueva.getUsuarioId());
             s.setEstado(solicitudNueva.getEstado());
             return solicitudRepository.save(s);
@@ -67,7 +62,18 @@ public class SolicitudService {
         return solicitudRepository.findByUsuarioId(usuarioId);
     }
 
-    public List<Solicitud> filtrarPorTecnico(Long idAsignacion) {
-        return solicitudRepository.findByIdAsignacion(idAsignacion);
+
+    @PostConstruct
+    public void init() {
+        cargarSolicitudesIniciales();
     }
+
+    private void cargarSolicitudesIniciales() {
+        if (solicitudRepository.count() == 0) {
+            agregarSolicitud("No prende el equipo", LocalDate.now(), null, "Pendiente", 1L);
+            agregarSolicitud("Error en pantalla", LocalDate.now(), null, "En proceso", 2L);
+            agregarSolicitud("Revisar conexión", LocalDate.now(), null, "Cerrado", 3L);
+        }
+    }
+
 }

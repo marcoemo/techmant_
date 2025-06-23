@@ -6,5 +6,5 @@ import com.example.Diagnosticos.model.Diagnostico;
 
 @Repository
 public interface DiagnosticoRepository extends JpaRepository<Diagnostico, Long> {
-
+    
 }

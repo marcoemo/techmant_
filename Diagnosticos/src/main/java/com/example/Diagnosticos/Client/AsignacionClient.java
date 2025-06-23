@@ -1,4 +1,4 @@
-package com.example.GestionSolicitudes.client;
+package com.example.Diagnosticos.Client;
 
 import java.util.Map;
 
@@ -8,7 +8,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
 public class AsignacionClient {
-
     private final WebClient webClient;
 
     public AsignacionClient(@Value("${asignacion-service.url}") String asignacionUrl) {
@@ -17,7 +16,7 @@ public class AsignacionClient {
                 .build();
     }
 
-    public Map<String, Object> obtenerAsigancionPorId(Long id) {
+    public Map<String, Object> obtenerAsignacionPorId(Long id) {
         return this.webClient.get()
                 .uri("/asignacion/{id}", id)
                 .retrieve()
