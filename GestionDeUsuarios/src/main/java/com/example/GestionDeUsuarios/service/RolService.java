@@ -20,22 +20,22 @@ public class RolService {
         this.RP = RP;
     }
 
-    // 🟦 Obtener todos los roles
+    //  Obtener todos los roles
     public List<Rol> obtenerTodos() {
         return RP.findAll();
     }
 
-    // 🟩 Crear nuevo rol
+    //  Crear nuevo rol
     public Rol guardarRol(Rol rol) {
         return RP.save(rol);
     }
 
-    // 🟨 Obtener rol por ID
+    //  Obtener rol por ID
     public Optional<Rol> obtenerPorId(Long id) {
         return RP.findById(id);
     }
 
-    // 🟧 Actualizar rol existente
+    //  Actualizar rol existente
     public Optional<Rol> actualizarRol(Long id, Rol datos) {
         return RP.findById(id).map(rol -> {
             rol.setNombreRol(datos.getNombreRol());
@@ -43,7 +43,7 @@ public class RolService {
         });
     }
 
-    // 🟥 Eliminar rol por ID
+    // Eliminar rol por ID
     public boolean eliminarRol(Long id) {
         if (RP.existsById(id)) {
             RP.deleteById(id);
@@ -52,7 +52,7 @@ public class RolService {
         return false;
     }
 
-    // 📌 Crear roles base al iniciar el microservicio
+    //  Crear roles base al iniciar el microservicio
     @PostConstruct
     public void CargarRolesIniciales() {
         if (!RP.existsById(1L)) RP.save(new Rol(1L, "ADMINISTRADOR"));
