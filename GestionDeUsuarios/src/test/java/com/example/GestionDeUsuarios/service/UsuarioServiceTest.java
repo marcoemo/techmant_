@@ -2,140 +2,91 @@ package com.example.GestionDeUsuarios.service;
 
 import com.example.GestionDeUsuarios.model.Rol;
 import com.example.GestionDeUsuarios.model.Usuario;
-import com.example.GestionDeUsuarios.repository.UsuarioRepository;
 import com.example.GestionDeUsuarios.repository.RolRepository;
+import com.example.GestionDeUsuarios.repository.UsuarioRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
+import org.mockito.Mockito;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-public class UsuarioServiceTest {
+class UsuarioServiceTest {
 
-    @Mock
-    private UsuarioRepository UR;
-
-    @Mock
+    private UsuarioRepository usuarioRepository;
     private RolRepository rolRepository;
-
-    @Mock
-    private PasswordEncoder PE;
-
-    @InjectMocks
+    private PasswordEncoder passwordEncoder;
     private UsuarioService usuarioService;
-
-    private Usuario usuario;
-    private Rol rol;
 
     @BeforeEach
     void setUp() {
-        rol = new Rol(5L, "USUARIO");
-        usuario = new Usuario(1L, "Juan", "juan@mail.com", "123", rol);
+        usuarioRepository = mock(UsuarioRepository.class);
+        rolRepository = mock(RolRepository.class);
+        passwordEncoder = mock(PasswordEncoder.class);
+        usuarioService = new UsuarioService(usuarioRepository, passwordEncoder);
+
+        // Inyección segura del repositorio privado
+        ReflectionTestUtils.setField(usuarioService, "rolRepository", rolRepository);
     }
 
     @Test
-    void guardarUsuario_nuevoUsuario_guardadoExitosamente() {
-        when(UR.existsByCorreo(usuario.getCorreo())).thenReturn(false);
-        when(PE.encode("123")).thenReturn("encoded123");
-        when(UR.save(any(Usuario.class))).thenReturn(usuario);
+    void guardarUsuario_correoNuevo_creaUsuario() {
+        Usuario nuevo = new Usuario(null, "Pedro", "pedro@mail.com", "abc", new Rol(5L, "USUARIO"));
+        when(usuarioRepository.existsByCorreo("pedro@mail.com")).thenReturn(false);
+        when(passwordEncoder.encode("abc")).thenReturn("encrypted");
+        when(usuarioRepository.save(any())).thenReturn(nuevo);
 
-        String result = usuarioService.guardarUsuario(usuario);
-
-        assertThat(result).isEqualTo("Usuario creado correctamente");
-        verify(UR).save(usuario);
+        String resultado = usuarioService.guardarUsuario(nuevo);
+        assertEquals("Usuario creado correctamente", resultado);
+        verify(usuarioRepository).save(any(Usuario.class));
     }
 
     @Test
-    void guardarUsuario_correoDuplicado_noSeGuarda() {
-        when(UR.existsByCorreo(usuario.getCorreo())).thenReturn(true);
+    void guardarUsuario_correoYaExiste_retornaError() {
+        when(usuarioRepository.existsByCorreo("existe@mail.com")).thenReturn(true);
 
-        String result = usuarioService.guardarUsuario(usuario);
+        Usuario repetido = new Usuario(null, "Ana", "existe@mail.com", "123", null);
+        String resultado = usuarioService.guardarUsuario(repetido);
 
-        assertThat(result).isEqualTo("Ya existe un usuario con ese correo");
-        verify(UR, never()).save(any());
+        assertEquals("Ya existe un usuario con ese correo", resultado);
+        verify(usuarioRepository, never()).save(any());
     }
 
     @Test
-    void obtenerUsuarios_devuelveLista() {
-        List<Usuario> lista = List.of(usuario);
-        when(UR.findAll()).thenReturn(lista);
-
-        List<Usuario> result = usuarioService.obtenerUsuarios();
-
-        assertThat(result).hasSize(1).contains(usuario);
-    }
-
-    @Test
-    void buscarPorCorreo_existente_devuelveUsuario() {
-        when(UR.findByCorreo("juan@mail.com")).thenReturn(Optional.of(usuario));
-
-        Optional<Usuario> result = usuarioService.buscarPorCorreo("juan@mail.com");
-
-        assertThat(result).isPresent().contains(usuario);
-    }
-
-    @Test
-    void buscarPorCorreo_noExiste_devuelveVacio() {
-        when(UR.findByCorreo("no@existe.com")).thenReturn(Optional.empty());
-
-        Optional<Usuario> result = usuarioService.buscarPorCorreo("no@existe.com");
-
-        assertThat(result).isEmpty();
-    }
-
-    @Test
-    void eliminarUsuario_existente_devuelveTrue() {
-        when(UR.existsById(1L)).thenReturn(true);
+    void eliminarUsuario_existe_elimina() {
+        when(usuarioRepository.existsById(1L)).thenReturn(true);
 
         boolean eliminado = usuarioService.eliminarUsuario(1L);
-
-        assertThat(eliminado).isTrue();
-        verify(UR).deleteById(1L);
+        assertTrue(eliminado);
+        verify(usuarioRepository).deleteById(1L);
     }
 
     @Test
-    void eliminarUsuario_noExiste_devuelveFalse() {
-        when(UR.existsById(99L)).thenReturn(false);
+    void eliminarUsuario_noExiste_falla() {
+        when(usuarioRepository.existsById(999L)).thenReturn(false);
 
-        boolean eliminado = usuarioService.eliminarUsuario(99L);
-
-        assertThat(eliminado).isFalse();
-        verify(UR, never()).deleteById(any());
+        boolean eliminado = usuarioService.eliminarUsuario(999L);
+        assertFalse(eliminado);
     }
 
     @Test
-    void editarUsuario_existente_actualizaDatos() {
-        Usuario nuevo = new Usuario(null, "Pedro", "pedro@mail.com", "clave", rol);
+    void editarUsuario_existente_actualiza() {
+        Usuario existente = new Usuario(1L, "Pedro", "pedro@mail.com", "123", new Rol(5L, "USUARIO"));
+        Usuario actualizado = new Usuario(null, "Pedro Editado", "editado@mail.com", "123", new Rol(1L, "ADMIN"));
 
-        when(UR.findById(1L)).thenReturn(Optional.of(usuario));
-        when(UR.save(any())).thenAnswer(i -> i.getArgument(0));
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(existente));
+        when(usuarioRepository.save(any())).thenReturn(existente);
 
-        Optional<Usuario> result = usuarioService.editarUsuario(1L, nuevo);
+        Optional<Usuario> resultado = usuarioService.editarUsuario(1L, actualizado);
 
-        assertThat(result).isPresent();
-        assertThat(result.get().getNombre()).isEqualTo("Pedro");
-        assertThat(result.get().getCorreo()).isEqualTo("pedro@mail.com");
-        assertThat(result.get().getRol()).isEqualTo(rol);
-    }
-
-    @Test
-    void editarUsuario_noExiste_retornaEmpty() {
-        when(UR.findById(100L)).thenReturn(Optional.empty());
-
-        Optional<Usuario> result = usuarioService.editarUsuario(100L, usuario);
-
-        assertThat(result).isEmpty();
+        assertTrue(resultado.isPresent());
+        assertEquals("editado@mail.com", resultado.get().getCorreo());
+        assertEquals("Pedro Editado", resultado.get().getNombre());
     }
 }

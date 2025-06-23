@@ -30,9 +30,9 @@ public class RolController {
         summary = "Obtener todos los roles",
         description = "Obtiene una lista de todos los roles del sistema",
         responses = {
-            @ApiResponse(responseCode = "200", description = "OK", 
+            @ApiResponse(responseCode = "200", description = "Lista de roles retornada con éxito", 
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rol.class))),
-            @ApiResponse(responseCode = "400", description = "Entrada inválida")
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida")
         }
     )
     @GetMapping
@@ -40,34 +40,59 @@ public class RolController {
         return ResponseEntity.ok(RS.obtenerTodos());
     }
 
-    @Operation(summary = "Crear nuevo rol",
-        description = "Crea un nuevo rol",
+    @Operation(
+        summary = "Crear nuevo rol",
+        description = "Crea un nuevo rol en el sistema",
         responses = {
-                @ApiResponse(responseCode = "200", description = "OK", 
+            @ApiResponse(responseCode = "201", description = "Rol creado correctamente", 
                 content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rol.class))),
-            @ApiResponse(responseCode = "400", description = "Entrada inválida")
-        })
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
+        }
+    )
     @PostMapping
     public ResponseEntity<Rol> crearRol(@RequestBody Rol rol) {
         Rol nuevo = RS.guardarRol(rol);
         return ResponseEntity.status(201).body(nuevo);
     }
 
-    @Operation(summary = "Obtener rol por ID")
+    @Operation(
+        summary = "Obtener rol por ID",
+        description = "Busca un rol específico por su ID",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Rol encontrado", 
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rol.class))),
+            @ApiResponse(responseCode = "404", description = "Rol no encontrado")
+        }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<Rol> obtenerPorId(@PathVariable Long id) {
         Optional<Rol> rol = RS.obtenerPorId(id);
         return rol.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    @Operation(summary = "Actualizar rol por ID")
+    @Operation(
+        summary = "Actualizar rol por ID",
+        description = "Actualiza los datos de un rol existente por su ID",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Rol actualizado con éxito", 
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = Rol.class))),
+            @ApiResponse(responseCode = "404", description = "Rol no encontrado")
+        }
+    )
     @PutMapping("/{id}")
     public ResponseEntity<Rol> actualizarRol(@PathVariable Long id, @RequestBody Rol datos) {
         Optional<Rol> actualizado = RS.actualizarRol(id, datos);
         return actualizado.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    @Operation(summary = "Eliminar rol por ID")
+    @Operation(
+        summary = "Eliminar rol por ID",
+        description = "Elimina un rol específico por su ID",
+        responses = {
+            @ApiResponse(responseCode = "204", description = "Rol eliminado correctamente"),
+            @ApiResponse(responseCode = "404", description = "Rol no encontrado")
+        }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarRol(@PathVariable Long id) {
         boolean eliminado = RS.eliminarRol(id);
