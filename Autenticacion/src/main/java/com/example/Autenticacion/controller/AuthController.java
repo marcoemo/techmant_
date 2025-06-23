@@ -13,12 +13,11 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    // Ahora se espera un JSON en el body con "correo" y "contrasena"
     @PostMapping
     public ResponseEntity<String> autenticar(@RequestBody Auth auth) {
         String resultado = authService.autenticarUsuario(auth.getCorreo(), auth.getContrasena());
 
-        if (resultado.equals("Autenticación exitosa")) {
+        if (resultado.equals("Datos Coinciden")) { //Esto lo cambie pq queda mjro asi
             return ResponseEntity.ok(resultado);
         } else {
             return ResponseEntity.status(401).body(resultado);

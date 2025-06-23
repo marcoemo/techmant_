@@ -18,7 +18,7 @@ public class CatalogoService {
 
 
 
-    private CatalogoService(CatalogoRepository CR){
+    public CatalogoService(CatalogoRepository CR){
             this.CR=CR;
     }
     @PostConstruct
