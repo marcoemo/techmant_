@@ -28,17 +28,18 @@ public class ResenaControllerTest {
     @MockBean
     private ResenasService resenasService;
 
-    private final Resenas muestra = new Resenas(1L, "Muy buen servicio", 5, 10L);
+    // Ejemplo de reseña para test (id=1, tipo="positiva", usuarioId=10)
+    private final Resenas muestra = new Resenas(1L, "positiva", 10L);
 
-    //  listarResenas
+    // listarResenas
     @Test
     void listarResenas_devuelveLista() throws Exception {
         when(resenasService.listarResenas()).thenReturn(List.of(muestra));
 
         mockMvc.perform(get("/resenias"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].resena").value("Muy buen servicio"))
-                .andExpect(jsonPath("$[0].calificacion").value(5));
+                .andExpect(jsonPath("$[0].tipoResena").value("positiva"))
+                .andExpect(jsonPath("$[0].usuarioId").value(10));
     }
 
     @Test
@@ -49,56 +50,38 @@ public class ResenaControllerTest {
                 .andExpect(status().isNoContent());
     }
 
-    //  crearResena
+    // crearResena
     @Test
-void crearResena_valida_retorna201() throws Exception {
-    Resenas mockResena = new Resenas(1L, "Muy buen servicio", 5, 101L);
+    void crearResena_valida_retorna201() throws Exception {
+        Resenas mockResena = new Resenas(1L, "positiva", 101L);
 
-    when(resenasService.agregarResenas(any(Resenas.class))).thenReturn(mockResena);
+        when(resenasService.agregarResena(any(Resenas.class))).thenReturn(mockResena);
 
-    mockMvc.perform(post("/resenias")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("""
-                {
-                    "resena": "Muy buen servicio",
-                    "calificacion": 5,
-                    "usuarioId": 101
-                }
-            """))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.resena").value("Muy buen servicio"))
-        .andExpect(jsonPath("$.calificacion").value(5))
-        .andExpect(jsonPath("$.usuarioId").value(101));
-}
-
-    @Test
-    void crearResena_sinResena_retorna400() throws Exception {
         mockMvc.perform(post("/resenias")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
-                            "resena": "",
-                            "calificacion": 5,
-                            "usuarioId": 10
+                            "tipoResena": "positiva",
+                            "usuarioId": 101
                         }
                         """))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("La reseña no puede estar vacía"));
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.tipoResena").value("positiva"))
+                .andExpect(jsonPath("$.usuarioId").value(101));
     }
 
     @Test
-    void crearResena_calificacionInvalida_retorna400() throws Exception {
+    void crearResena_tipoResenaInvalido_retorna400() throws Exception {
         mockMvc.perform(post("/resenias")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
-                            "resena": "Mala atención",
-                            "calificacion": 0,
+                            "tipoResena": "excelente",
                             "usuarioId": 10
                         }
                         """))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("La calificación debe estar entre 1 y 5"));
+                .andExpect(content().string("El tipo de reseña debe ser: positiva, neutra o negativa"));
     }
 
     @Test
@@ -107,15 +90,14 @@ void crearResena_valida_retorna201() throws Exception {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
-                            "resena": "Todo bien",
-                            "calificacion": 4
+                            "tipoResena": "neutra"
                         }
                         """))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Debe especificar el ID del usuario"));
     }
 
-    //  obtenerPorUsuario
+    // obtenerPorUsuario
     @Test
     void obtenerPorUsuario_devuelveLista() throws Exception {
         when(resenasService.listarPorUsuario(10L)).thenReturn(List.of(muestra));
@@ -133,14 +115,14 @@ void crearResena_valida_retorna201() throws Exception {
                 .andExpect(status().isNoContent());
     }
 
-    //  obtenerPorId
+    // obtenerPorId
     @Test
     void obtenerPorId_devuelveResena() throws Exception {
         when(resenasService.buscarPorId(1L)).thenReturn(Optional.of(muestra));
 
         mockMvc.perform(get("/resenias/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.resena").value("Muy buen servicio"));
+                .andExpect(jsonPath("$.tipoResena").value("positiva"));
     }
 
     @Test
@@ -151,7 +133,7 @@ void crearResena_valida_retorna201() throws Exception {
                 .andExpect(status().isNotFound());
     }
 
-    //  eliminarResena
+    // eliminarResena
     @Test
     void eliminarResena_existente_retorna204() throws Exception {
         when(resenasService.eliminarPorId(1L)).thenReturn(true);
