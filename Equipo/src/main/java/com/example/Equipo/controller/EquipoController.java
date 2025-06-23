@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.Equipo.model.Categoria;
 import com.example.Equipo.model.Equipo;
 import com.example.Equipo.service.EquipoService;
 

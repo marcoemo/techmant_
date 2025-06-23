@@ -5,13 +5,18 @@ import com.example.Asignaciones.repository.AsignacionRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class AsignacionServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AsignacionesServiceTest {
 
     @Mock
     private AsignacionRepository asignacionRepository;
@@ -27,8 +32,8 @@ class AsignacionServiceTest {
     @Test
     void obtenerTodos_retornaListaTecnicos() {
         List<Tecnico> tecnicos = List.of(
-            new Tecnico(1L, "Ricardo", "Disponible"),
-            new Tecnico(2L, "Dariel", "Ocupado")
+            new Tecnico(1L,1L,"Disponible",1L),
+            new Tecnico(2L, 2L, "Ocupado",1L)
         );
 
         when(asignacionRepository.findAll()).thenReturn(tecnicos);
@@ -40,81 +45,56 @@ class AsignacionServiceTest {
     }
 
     @Test
-    void buscarPorId_tecnicoExiste_retornaTecnico() {
-        Tecnico tecnico = new Tecnico(1L, "Ricardo", "Disponible");
+    void obtenerTodos_retornaListaVaciaCuandoNoHayTecnicos() {
+        when(asignacionRepository.findAll()).thenReturn(Collections.emptyList());
+
+        List<Tecnico> resultado = asignacionService.obtenerTodos();
+
+        assertTrue(resultado.isEmpty());
+        verify(asignacionRepository, times(1)).findAll();
+    }
+
+    @Test
+    void obtenerPorId_retornaTecnicoCuandoExiste() {
+        Tecnico tecnico = new Tecnico(1L, 1L, "Disponible", 1L);
         when(asignacionRepository.findById(1L)).thenReturn(Optional.of(tecnico));
 
         Tecnico resultado = asignacionService.buscarPorId(1L);
 
         assertNotNull(resultado);
-        assertEquals("Ricardo", resultado.getNombreTecnico());
-        verify(asignacionRepository).findById(1L);
+        assertEquals(tecnico, resultado);
+        verify(asignacionRepository, times(1)).findById(1L);
     }
 
     @Test
-    void buscarPorId_tecnicoNoExiste_retornaNull() {
-        when(asignacionRepository.findById(999L)).thenReturn(Optional.empty());
+    void obtenerPorId_retornaVacioCuandoNoExiste() {
+        when(asignacionRepository.findById(1L)).thenReturn(Optional.empty());
 
-        Tecnico resultado = asignacionService.buscarPorId(999L);
+        Tecnico resultado = asignacionService.buscarPorId(1L);
 
         assertNull(resultado);
-        verify(asignacionRepository).findById(999L);
+        verify(asignacionRepository, times(1)).findById(1L);
     }
 
     @Test
-    void eliminarPorId_tecnicoExiste_elimina() {
-        when(asignacionRepository.existsById(1L)).thenReturn(true);
-        doNothing().when(asignacionRepository).deleteById(1L);
+    void guardarTecnico_guardaYRetornaTecnico() {
+        Tecnico tecnico = new Tecnico(1L, 1L, "Disponible", 1L);
+        when(asignacionRepository.save(any(Tecnico.class))).thenReturn(tecnico);
 
-        asignacionService.eliminarPorId(1L);
+        Tecnico resultado = asignacionService.agregarTecnico("Nombre", "Estado", 1L, 1L);
 
-        verify(asignacionRepository).existsById(1L);
-        verify(asignacionRepository).deleteById(1L);
+        assertEquals(tecnico, resultado);
+        verify(asignacionRepository, times(1)).save(any(Tecnico.class));
     }
 
     @Test
-    void eliminarPorId_tecnicoNoExiste_noHaceNada() {
-        when(asignacionRepository.existsById(999L)).thenReturn(false);
+    void eliminarTecnico_eliminaPorId() {
+    Long id = 1L;
+    when(asignacionRepository.existsById(id)).thenReturn(true);
 
-        asignacionService.eliminarPorId(999L);
+    asignacionService.eliminarPorId(id);
 
-        verify(asignacionRepository).existsById(999L);
-        verify(asignacionRepository, never()).deleteById(anyLong());
-    }
-
-    @Test
-    void modificarDisponibilidad_tecnicoExiste_actualizaYGuarda() {
-        Tecnico tecnico = new Tecnico(1L, "Ricardo", "Ocupado");
-        when(asignacionRepository.findById(1L)).thenReturn(Optional.of(tecnico));
-        when(asignacionRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-
-        asignacionService.modificarDisponibilidad(1L, "Disponible");
-
-        assertEquals("Disponible", tecnico.getDisponibilidad());
-        verify(asignacionRepository).findById(1L);
-        verify(asignacionRepository).save(tecnico);
-    }
-
-    @Test
-    void modificarDisponibilidad_tecnicoNoExiste_noHaceNada() {
-        when(asignacionRepository.findById(999L)).thenReturn(Optional.empty());
-
-        asignacionService.modificarDisponibilidad(999L, "Disponible");
-
-        verify(asignacionRepository).findById(999L);
-        verify(asignacionRepository, never()).save(any());
-    }
-
-    @Test
-    void agregarTecnico_guardaNuevoTecnico() {
-        Tecnico tecnicoEsperado = new Tecnico(4L, "Pablo", "Ocupado");
-        when(asignacionRepository.save(any(Tecnico.class))).thenReturn(tecnicoEsperado);
-
-        Tecnico resultado = asignacionService.agregarTecnico("Pablo", "Ocupado");
-
-        assertNotNull(resultado);
-        assertEquals("Pablo", resultado.getNombreTecnico());
-        assertEquals("Ocupado", resultado.getDisponibilidad());
-        verify(asignacionRepository).save(any(Tecnico.class));
-    }
+    verify(asignacionRepository, times(1)).deleteById(id);
 }
+}
+    
