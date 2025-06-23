@@ -2,7 +2,8 @@ package com.example.Resenas.controller;
 
 import com.example.Resenas.model.Resenas;
 import com.example.Resenas.service.ResenasService;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,66 +13,82 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/resenias")
+@Tag(name = "Reseñas", description = "Operaciones relacionadas con reseñas de usuarios")
 public class ResenaController {
 
-    @Autowired
-    private final ResenasService RS;
+    private final ResenasService resenasService;
 
-    public ResenaController(ResenasService RS) {
-        this.RS = RS;
+    public ResenaController(ResenasService resenasService) {
+        this.resenasService = resenasService;
     }
 
-    // 🔹 Obtener todas las reseñas
+    private final List<String> tiposValidos = List.of("positiva", "neutra", "negativa");
+
+    @Operation(summary = "Listar todas las reseñas")
     @GetMapping
     public ResponseEntity<List<Resenas>> listarResenas() {
-        List<Resenas> resenas = RS.listarResenas();
+        List<Resenas> resenas = resenasService.listarResenas();
         if (resenas.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(resenas);
     }
 
-    // 🔹 Crear nueva reseña con validaciones manuales
+    @Operation(summary = "Obtener reseña por su ID")
+    @GetMapping("/{id}")
+    public ResponseEntity<Resenas> obtenerPorId(@PathVariable Long id) {
+        Optional<Resenas> resena = resenasService.buscarPorId(id);
+        return resena.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Listar reseñas por ID de usuario")
+    @GetMapping("/usuario/{usuarioId}")
+    public ResponseEntity<List<Resenas>> listarPorUsuario(@PathVariable Long usuarioId) {
+        List<Resenas> resenas = resenasService.listarPorUsuario(usuarioId);
+        if (resenas.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(resenas);
+    }
+
+    @Operation(summary = "Crear una nueva reseña")
     @PostMapping
-    public ResponseEntity<?> crearResena(@RequestBody Resenas res) {
-        if (res.getResena() == null || res.getResena().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("La reseña no puede estar vacía");
+    public ResponseEntity<?> crearResena(@RequestBody Resenas resena) {
+        if (resena.getTipoResena() == null || !tiposValidos.contains(resena.getTipoResena().toLowerCase())) {
+            return ResponseEntity.badRequest().body("El tipo de reseña debe ser: positiva, neutra o negativa");
         }
 
-        if (res.getCalificacion() == null || res.getCalificacion() < 1 || res.getCalificacion() > 5) {
-            return ResponseEntity.badRequest().body("La calificación debe estar entre 1 y 5");
-        }
-
-        if (res.getUsuarioId() == null) {
+        if (resena.getUsuarioId() == null) {
             return ResponseEntity.badRequest().body("Debe especificar el ID del usuario");
         }
 
-        Resenas res2 = RS.agregarResenas(res);
-        return ResponseEntity.status(HttpStatus.CREATED).body(res2);
+        Resenas creada = resenasService.agregarResena(resena);
+        return ResponseEntity.status(HttpStatus.CREATED).body(creada);
     }
 
-    // 🔹 Obtener reseñas por usuario
-    @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<Resenas>> obtenerPorUsuario(@PathVariable Long usuarioId) {
-        List<Resenas> porUsuario = RS.listarPorUsuario(usuarioId);
-        if (porUsuario.isEmpty()) {
-            return ResponseEntity.noContent().build();
+    @Operation(summary = "Modificar una reseña existente")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> modificarResena(@PathVariable Long id, @RequestBody Resenas resenaActualizada) {
+        if (resenaActualizada.getTipoResena() == null || !tiposValidos.contains(resenaActualizada.getTipoResena().toLowerCase())) {
+            return ResponseEntity.badRequest().body("El tipo de reseña debe ser: positiva, neutra o negativa");
         }
-        return ResponseEntity.ok(porUsuario);
+
+        if (resenaActualizada.getUsuarioId() == null) {
+            return ResponseEntity.badRequest().body("Debe especificar el ID del usuario");
+        }
+
+        Optional<Resenas> modificada = resenasService.modificarResena(id, resenaActualizada);
+        if (modificada.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(modificada.get());
     }
 
-    // 🔹 Obtener una reseña por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Resenas> obtenerPorId(@PathVariable Long id) {
-        Optional<Resenas> encontrada = RS.buscarPorId(id);
-        return encontrada.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
-    }
-
-    // 🔹 Eliminar reseña
+    @Operation(summary = "Eliminar una reseña por su ID")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarResena(@PathVariable Long id) {
-        boolean eliminada = RS.eliminarPorId(id);
-        if (eliminada) {
+        boolean eliminado = resenasService.eliminarPorId(id);
+        if (eliminado) {
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
