@@ -80,15 +80,15 @@ public class AsignacionControllerTest {
 
     @Test
     void modificarDisponibilidad_actualizaYDevuelveOk() throws Exception {
-        Mockito.doNothing().when(asignacionService).modificarDisponibilidad(1L, "Ocupado");
+    Mockito.when(asignacionService.modificarDisponibilidad(1L, "Ocupado")).thenReturn(true);
 
-        mockMvc.perform(put("/asignacion/1/disponibilidad")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nuevaDisponibilidad\":\"Ocupado\"}"))
-            .andExpect(status().isOk())
-            .andExpect(content().string("Tecnico modificado"));
+    mockMvc.perform(put("/asignacion/1/disponibilidad")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\"nuevaDisponibilidad\":\"Ocupado\"}"))
+        .andExpect(status().isOk())
+        .andExpect(content().string("Tecnico modificado"));
 
-        verify(asignacionService).modificarDisponibilidad(1L, "Ocupado");
+    verify(asignacionService).modificarDisponibilidad(1L, "Ocupado");
     }
 
     @Test
