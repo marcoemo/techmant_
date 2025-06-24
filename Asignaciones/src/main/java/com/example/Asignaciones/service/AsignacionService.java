@@ -50,21 +50,32 @@ public class AsignacionService {
         return AR.save(nuevo);
     }
     
-    //creacion de datos guardados
+    // Carga inicial de técnicos
     @PostConstruct
-    public void cargarDatosIniciales() {
-    try {
-        if (AR.count() == 0) {
-            AR.save(new Tecnico(1L, 1L, "Disponible", 1L));
-            AR.save(new Tecnico(2L, 2L, "Ocupado", 2L));
-            AR.save(new Tecnico(3L, 3L, "Disponible", 3L));
-            System.out.println("Técnicos iniciales cargados correctamente.");
-        } else {
-            System.out.println("Ya existen técnicos en la base de datos. No se cargaron datos iniciales.");
-        }
-    } catch (Exception e) {
-        System.err.println("Error al cargar técnicos iniciales: " + e.getMessage());
-        e.printStackTrace();
-        }
+    public void init() {
+        cargarTecnicosIniciales();
     }
+
+    private void cargarTecnicosIniciales() {
+    AR.deleteAll(); // Limpia la tabla antes de insertar
+
+    List<Tecnico> tecnicosIniciales = List.of(
+        crearTecnico("Disponible", 1L, 1L),
+        crearTecnico("Ocupado", 2L, 2L),
+        crearTecnico("Disponible", 3L, 3L)
+    );
+
+    for (Tecnico t : tecnicosIniciales) {
+        AR.save(t);
+    }
+    System.out.println("Carga inicial de técnicos completada.");
+}
+
+private Tecnico crearTecnico(String estado, Long usuarioId, Long solicitudId) {
+    Tecnico tecnico = new Tecnico();
+    tecnico.setDisponibilidad(estado);
+    tecnico.setUsuarioId(usuarioId);
+    tecnico.setSolicitudId(solicitudId);
+    return tecnico;
+}
 }
