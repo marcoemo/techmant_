@@ -87,4 +87,32 @@ class SeguimientoServiceTest {
         assertEquals(1, resultado.size());
         assertEquals(10L, resultado.get(0).getSolicitudId());
     }
+
+    @Test
+    void cargarSeguimientosIniciales_agregaSeguimientosSiNoExisten() {
+        // Simula que no existen seguimientos con esos solicitudId
+        when(repo.findAll()).thenReturn(List.of());
+
+        // Simula el guardado de seguimientos
+        when(repo.save(any(Seguimiento.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        service.cargarSeguimientosIniciales();
+
+        // Debe intentar guardar 3 seguimientos
+        verify(repo, times(3)).save(any(Seguimiento.class));
+    }
+
+    @Test
+    void cargarSeguimientosIniciales_noAgregaSiYaExisten() {
+        // Simula que ya existen seguimientos con esos solicitudId
+        Seguimiento s1 = new Seguimiento(1L, "En revisión", "Se está analizando el problema", 1L);
+        Seguimiento s2 = new Seguimiento(2L, "Esperando repuestos", "Se enviará a taller", 2L);
+        Seguimiento s3 = new Seguimiento(3L, "Finalizado", "Equipo reparado y entregado", 3L);
+        when(repo.findAll()).thenReturn(List.of(s1, s2, s3));
+
+        service.cargarSeguimientosIniciales();
+
+        // No debe intentar guardar nada porque ya existen
+        verify(repo, never()).save(any(Seguimiento.class));
+    }
 } 
