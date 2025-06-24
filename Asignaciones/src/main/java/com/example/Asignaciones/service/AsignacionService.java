@@ -15,7 +15,7 @@ public class AsignacionService {
     @Autowired
     private AsignacionRepository AR;
 
-     private Long proximoId = 4L;
+    private Long proximoId = 4L;
 
     public List<Tecnico> obtenerTodos(){
         return AR.findAll();
@@ -52,44 +52,19 @@ public class AsignacionService {
     
     //creacion de datos guardados
     @PostConstruct
-    public void init() {
-        cargarTecnicosIniciales();
-    }
-    
-    private void cargarTecnicosIniciales() {
-        List<Tecnico> tecnicosIniciales = List.of(
-            crearTecnico(1L, "Pedro", "Disponible", 1L, 1L),
-            crearTecnico(2L, "María", "Ocupado", 2L, 2L),
-            crearTecnico(3L, "Carlos", "Disponible", 3L, 3L)
-        );
-        
-        for (Tecnico tecnico : tecnicosIniciales) {
-            // Verificar si ya existe por ID
-            if (!AR.existsById(tecnico.getIdAsignacion())) {
-                AR.save(tecnico);
-            }
+    public void cargarDatosIniciales() {
+    try {
+        if (AR.count() == 0) {
+            AR.save(new Tecnico(1L, 1L, "Disponible", 1L));
+            AR.save(new Tecnico(2L, 2L, "Ocupado", 2L));
+            AR.save(new Tecnico(3L, 3L, "Disponible", 3L));
+            System.out.println("Técnicos iniciales cargados correctamente.");
+        } else {
+            System.out.println("Ya existen técnicos en la base de datos. No se cargaron datos iniciales.");
+        }
+    } catch (Exception e) {
+        System.err.println("Error al cargar técnicos iniciales: " + e.getMessage());
+        e.printStackTrace();
         }
     }
-
-    private Tecnico crearTecnico(Long id, String nombre, String estado, 
-                                Long usuarioId, Long solicitudId) {
-        Tecnico tecnico = new Tecnico();
-        tecnico.setIdAsignacion(id);
-        tecnico.setDisponibilidad(estado);
-        tecnico.setUsuarioId(usuarioId);
-        tecnico.setSolicitudId(solicitudId);
-        return tecnico;
-    }
-
-    public Tecnico crearTecnicoConId(Long id, String nombre, String estado, 
-                                   Long usuarioId, Long solicitudId) {
-        // Verificar si el ID ya existe
-        if (AR.existsById(id)) {
-            throw new RuntimeException("El ID " + id + " ya está en uso");
-        }
-        
-        Tecnico nuevo = crearTecnico(id, nombre, estado, usuarioId, solicitudId);
-        return AR.save(nuevo);
-    }
-    //termino de carga
 }

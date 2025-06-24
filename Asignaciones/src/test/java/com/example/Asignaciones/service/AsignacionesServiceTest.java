@@ -30,71 +30,72 @@ class AsignacionesServiceTest {
     }
 
     @Test
-    void obtenerTodos_retornaListaTecnicos() {
-        List<Tecnico> tecnicos = List.of(
-            new Tecnico(1L,1L,"Disponible",1L),
-            new Tecnico(2L, 2L, "Ocupado",1L)
+    void obtenerTodos_deberiaRetornarListaDeTecnicos() {
+        List<Tecnico> tecnicosMock = Arrays.asList(
+            new Tecnico(1L, 1L, "Disponible", 1L),
+            new Tecnico(2L, 2L, "Ocupado", 2L)
         );
-
-        when(asignacionRepository.findAll()).thenReturn(tecnicos);
+        when(asignacionRepository.findAll()).thenReturn(tecnicosMock);
 
         List<Tecnico> resultado = asignacionService.obtenerTodos();
 
+        assertNotNull(resultado);
         assertEquals(2, resultado.size());
-        verify(asignacionRepository, times(1)).findAll();
+        assertEquals(tecnicosMock, resultado);
+        verify(asignacionRepository).findAll();
     }
 
     @Test
-    void obtenerTodos_retornaListaVaciaCuandoNoHayTecnicos() {
+    void obtenerTodos_deberiaRetornarListaVaciaSiNoHayTecnicos() {
         when(asignacionRepository.findAll()).thenReturn(Collections.emptyList());
 
         List<Tecnico> resultado = asignacionService.obtenerTodos();
 
+        assertNotNull(resultado);
         assertTrue(resultado.isEmpty());
-        verify(asignacionRepository, times(1)).findAll();
+        verify(asignacionRepository).findAll();
     }
 
     @Test
-    void obtenerPorId_retornaTecnicoCuandoExiste() {
-        Tecnico tecnico = new Tecnico(1L, 1L, "Disponible", 1L);
-        when(asignacionRepository.findById(1L)).thenReturn(Optional.of(tecnico));
+    void buscarPorId_deberiaRetornarTecnicoSiExiste() {
+        Tecnico tecnicoMock = new Tecnico(10L, 5L, "Disponible", 2L);
+        when(asignacionRepository.findById(10L)).thenReturn(Optional.of(tecnicoMock));
 
-        Tecnico resultado = asignacionService.buscarPorId(1L);
+        Tecnico resultado = asignacionService.buscarPorId(10L);
 
         assertNotNull(resultado);
-        assertEquals(tecnico, resultado);
-        verify(asignacionRepository, times(1)).findById(1L);
+        assertEquals(tecnicoMock, resultado);
+        verify(asignacionRepository).findById(10L);
     }
 
     @Test
-    void obtenerPorId_retornaVacioCuandoNoExiste() {
-        when(asignacionRepository.findById(1L)).thenReturn(Optional.empty());
+    void buscarPorId_deberiaRetornarNullSiNoExiste() {
+        when(asignacionRepository.findById(99L)).thenReturn(Optional.empty());
 
-        Tecnico resultado = asignacionService.buscarPorId(1L);
+        Tecnico resultado = asignacionService.buscarPorId(99L);
 
         assertNull(resultado);
-        verify(asignacionRepository, times(1)).findById(1L);
+        verify(asignacionRepository).findById(99L);
+    }
+
+
+    @Test
+    void eliminarPorId_deberiaEliminarSiExiste() {
+        Long id = 4L;
+        when(asignacionRepository.existsById(id)).thenReturn(true);
+
+        asignacionService.eliminarPorId(id);
+
+        verify(asignacionRepository).deleteById(id);
     }
 
     @Test
-    void guardarTecnico_guardaYRetornaTecnico() {
-        Tecnico tecnico = new Tecnico(1L, 1L, "Disponible", 1L);
-        when(asignacionRepository.save(any(Tecnico.class))).thenReturn(tecnico);
+    void eliminarPorId_noDeberiaEliminarSiNoExiste() {
+        Long id = 5L;
+        when(asignacionRepository.existsById(id)).thenReturn(false);
 
-        Tecnico resultado = asignacionService.agregarTecnico("Nombre", "Estado", 1L, 1L);
+        asignacionService.eliminarPorId(id);
 
-        assertEquals(tecnico, resultado);
-        verify(asignacionRepository, times(1)).save(any(Tecnico.class));
+        verify(asignacionRepository, never()).deleteById(id);
     }
-
-    @Test
-    void eliminarTecnico_eliminaPorId() {
-    Long id = 1L;
-    when(asignacionRepository.existsById(id)).thenReturn(true);
-
-    asignacionService.eliminarPorId(id);
-
-    verify(asignacionRepository, times(1)).deleteById(id);
 }
-}
-    

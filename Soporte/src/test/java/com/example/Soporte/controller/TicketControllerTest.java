@@ -3,6 +3,7 @@ package com.example.Soporte.controller;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +42,7 @@ public class TicketControllerTest {
 
     @Test
     void obtenerTicketPorId_retornaOkYTicket() throws Exception {
-        Ticket ticket = new Ticket(2L, "Duda", 10L, 4L, "No funciona la app");
+        Ticket ticket = new Ticket(2L, "Duda", 10L, "No funciona la app");
         when(ticketService.obtenerTicketPorId(2L)).thenReturn(Optional.of(ticket));
 
         mockMvc.perform(get("/tickets/2"))
@@ -49,7 +50,6 @@ public class TicketControllerTest {
             .andExpect(jsonPath("$.idTicket").value(2L))
             .andExpect(jsonPath("$.tipoTicket").value("Duda"))
             .andExpect(jsonPath("$.usuarioId").value(10L))
-            .andExpect(jsonPath("$.soporteId").value(4L))
             .andExpect(jsonPath("$.descripcion").value("No funciona la app"));
     }
 
@@ -64,7 +64,7 @@ public class TicketControllerTest {
     @Test
     void listarTicketsPorUsuario_retornaOkConLista() throws Exception {
         List<Ticket> tickets = Arrays.asList(
-            new Ticket(3L, "Reclamo", 5L, 4L, "Lento el sistema")
+            new Ticket(3L, "Reclamo", 5L, "Lento el sistema")
         );
         when(ticketService.obtenerTicketsPorUsuario(5L)).thenReturn(tickets);
 
@@ -85,10 +85,10 @@ public class TicketControllerTest {
 
     @Test
     void crearTicket_retornaCreated() throws Exception {
-        Ticket entrada = new Ticket(null, "Sugerencia", 7L, null, "Agregar tema oscuro");
-        Ticket creado = new Ticket(10L, "Sugerencia", 7L, 4L, "Agregar tema oscuro");
+        Ticket entrada = new Ticket(null, "Sugerencia", 7L, "Agregar tema oscuro");
+        Ticket creado = new Ticket(10L, "Sugerencia", 7L, "Agregar tema oscuro");
 
-        when(ticketService.crearTicket(any(Ticket.class))).thenReturn(Optional.of(creado));
+        when(ticketService.crearTicket(any(Ticket.class), isNull())).thenReturn(Optional.of(creado));
 
         String json = """
             {
@@ -105,13 +105,12 @@ public class TicketControllerTest {
             .andExpect(jsonPath("$.idTicket").value(10L))
             .andExpect(jsonPath("$.tipoTicket").value("Sugerencia"))
             .andExpect(jsonPath("$.usuarioId").value(7))
-            .andExpect(jsonPath("$.soporteId").value(4))
             .andExpect(jsonPath("$.descripcion").value("Agregar tema oscuro"));
     }
 
     @Test
     void crearTicket_retornaBadRequestPorTipoInvalido() throws Exception {
-        when(ticketService.crearTicket(any(Ticket.class))).thenReturn(Optional.empty());
+        when(ticketService.crearTicket(any(Ticket.class), isNull())).thenReturn(Optional.empty());
 
         String json = """
             {
@@ -129,7 +128,7 @@ public class TicketControllerTest {
 
     @Test
     void actualizarTicket_retornaOk() throws Exception {
-        Ticket actualizado = new Ticket(7L, "Reclamo", 8L, 4L, "Actualizado");
+        Ticket actualizado = new Ticket(7L, "Reclamo", 8L, "Actualizado");
 
         when(ticketService.actualizarTicket(eq(7L), any(Ticket.class))).thenReturn(Optional.of(actualizado));
 

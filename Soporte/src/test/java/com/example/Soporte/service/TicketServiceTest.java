@@ -1,7 +1,6 @@
 package com.example.Soporte.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -38,7 +37,7 @@ class TicketServiceTest {
 
     @Test
     void obtenerTicketPorId_retornaTicket() {
-        Ticket ticket = new Ticket(2L, "Duda", 2L, 4L, "Descripción ejemplo");
+        Ticket ticket = new Ticket(2L, "Duda", 2L, "Descripción ejemplo");
         when(ticketRepository.findById(2L)).thenReturn(Optional.of(ticket));
 
         Optional<Ticket> resultado = ticketService.obtenerTicketPorId(2L);
@@ -58,7 +57,7 @@ class TicketServiceTest {
 
     @Test
     void obtenerTicketsPorUsuario_retornaLista() {
-        Ticket ticket = new Ticket(3L, "Reclamo", 5L, 4L, "Sistema lento");
+        Ticket ticket = new Ticket(3L, "Reclamo", 5L, "Sistema lento");
         when(ticketRepository.findByUsuarioId(5L)).thenReturn(List.of(ticket));
 
         List<Ticket> resultado = ticketService.obtenerTicketsPorUsuario(5L);
@@ -68,23 +67,22 @@ class TicketServiceTest {
 
     @Test
     void crearTicket_retornaTicketCreado() {
-        Ticket ticketACrear = new Ticket(null, "Sugerencia", 4L, null, "Nueva funcionalidad");
-        Ticket ticketCreado = new Ticket(10L, "Sugerencia", 4L, 4L, "Nueva funcionalidad");
+        Ticket ticketACrear = new Ticket(null, "Sugerencia", 4L, "Nueva funcionalidad");
+        Ticket ticketCreado = new Ticket(10L, "Sugerencia", 4L, "Nueva funcionalidad");
 
         when(ticketRepository.save(any(Ticket.class))).thenReturn(ticketCreado);
 
-        Optional<Ticket> resultado = ticketService.crearTicket(ticketACrear);
+        Optional<Ticket> resultado = ticketService.crearTicket(ticketACrear, null);
 
         assertThat(resultado).isPresent();
         assertThat(resultado.get().getIdTicket()).isEqualTo(10L);
-        assertThat(resultado.get().getSoporteId()).isEqualTo(4L);
     }
 
     @Test
     void crearTicket_retornaVacioConTipoInvalido() {
-        Ticket ticketInvalido = new Ticket(null, "Invalido", 4L, null, "Tipo incorrecto");
+        Ticket ticketInvalido = new Ticket(null, "Invalido", 4L, "Tipo incorrecto");
 
-        Optional<Ticket> resultado = ticketService.crearTicket(ticketInvalido);
+        Optional<Ticket> resultado = ticketService.crearTicket(ticketInvalido, null);
 
         assertThat(resultado).isEmpty();
         verify(ticketRepository, never()).save(any());
@@ -92,9 +90,9 @@ class TicketServiceTest {
 
     @Test
     void actualizarTicket_retornaTicketActualizado() {
-        Ticket ticketExistente = new Ticket(7L, "Duda", 1L, 4L, "Antigua descripción");
-        Ticket ticketNuevo = new Ticket(null, "Duda", 8L, null, "Descripción actualizada");
-        Ticket ticketGuardado = new Ticket(7L, "Duda", 8L, 4L, "Descripción actualizada");
+        Ticket ticketExistente = new Ticket(7L, "Duda", 1L, "Antigua descripción");
+        Ticket ticketNuevo = new Ticket(null, "Duda", 8L, "Descripción actualizada");
+        Ticket ticketGuardado = new Ticket(7L, "Duda", 8L, "Descripción actualizada");
 
         when(ticketRepository.findById(7L)).thenReturn(Optional.of(ticketExistente));
         when(ticketRepository.save(any(Ticket.class))).thenReturn(ticketGuardado);
@@ -111,7 +109,7 @@ class TicketServiceTest {
     when(ticketRepository.findById(99L)).thenReturn(Optional.empty());
 
     // No pasar campos nulos en dudaSug o tipoTicket
-    Ticket ticketParaActualizar = new Ticket(null, "Duda", 8L, null, "Descripción válida");
+    Ticket ticketParaActualizar = new Ticket(null, "Duda", 8L, "Descripción válida");
 
     Optional<Ticket> resultado = ticketService.actualizarTicket(99L, ticketParaActualizar);
 
@@ -128,6 +126,6 @@ class TicketServiceTest {
     ticketService.eliminarTicket(11L);
 
     verify(ticketRepository, times(1)).deleteById(11L);
-}
+    }
 
 }

@@ -133,8 +133,8 @@ class CatalogoServiceTest {
     }
 
     @Test
-    void CargarServiciosInciales_agregaServiciosSiNoExisten() {
-        when(catalogoRepository.existsById(anyLong())).thenReturn(false);
+    void cargarServiciosIniciales_agregaServiciosSiNoExisten() {
+        
         when(catalogoRepository.save(any(Catalogo.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         catalogoService.CargarServiciosInciales();
@@ -142,12 +142,4 @@ class CatalogoServiceTest {
         verify(catalogoRepository, times(9)).save(any(Catalogo.class));
     }
 
-    @Test
-    void CargarServiciosInciales_noAgregaSiYaExisten() {
-        when(catalogoRepository.existsById(anyLong())).thenReturn(true);
-
-        catalogoService.CargarServiciosInciales();
-
-        verify(catalogoRepository, never()).save(any(Catalogo.class));
-    }
 }

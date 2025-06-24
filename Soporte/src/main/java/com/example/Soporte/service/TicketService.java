@@ -3,38 +3,37 @@ package com.example.Soporte.service;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.Soporte.model.Ticket;
 import com.example.Soporte.repository.TicketRepository;
 
+import jakarta.annotation.PostConstruct;
+
 @Service
 @Transactional
-public class TicketService implements CommandLineRunner {
+public class TicketService {
 
     private final TicketRepository ticketRepository;
 
     // Tipos válidos de tickets
     private final List<String> tiposValidos = List.of("Duda", "Sugerencia", "Reclamo");
 
-    // Simulación ID de soporte (rol 4) fijo para asignar
-    private final Long soporteIdAsignado = 4L;
-
     public TicketService(TicketRepository ticketRepository) {
         this.ticketRepository = ticketRepository;
     }
 
     // Precarga algunos tickets iniciales al iniciar la app
-    @Override
-    public void run(String... args) throws Exception {
-        if (ticketRepository.count() == 0) {
-            ticketRepository.save(new Ticket(null, "Duda", 1L, soporteIdAsignado, "No puedo ingresar al sistema"));
-            ticketRepository.save(new Ticket(null, "Sugerencia", 2L, soporteIdAsignado, "Agregar opción de reporte"));
-            ticketRepository.save(new Ticket(null, "Reclamo", 3L, soporteIdAsignado, "El sistema es muy lento"));
-            System.out.println("Tickets base precargados: Duda, Sugerencia, Reclamo.");
-        }
+
+    @PostConstruct
+    public void cargarDatosIniciales() {
+    ticketRepository.deleteAll(); // Limpia la tabla antes de insertar
+
+    ticketRepository.save(new Ticket(null, "Duda", 1L, "No puedo ingresar al sistema"));
+    ticketRepository.save(new Ticket(null, "Sugerencia", 2L, "Agregar opción de reporte"));
+    ticketRepository.save(new Ticket(null, "Reclamo", 3L, "El sistema es muy lento"));
+    System.out.println("Tickets base precargados: Duda, Sugerencia, Reclamo.");
     }
 
     // Listar todos los tickets
@@ -52,12 +51,12 @@ public class TicketService implements CommandLineRunner {
         return ticketRepository.findByUsuarioId(usuarioId);
     }
 
-    // Crear ticket validando tipo y asignando soporte automáticamente
-    public Optional<Ticket> crearTicket(Ticket ticket) {
+    // Crear ticket validando tipo y asignando usuario (sin asignar soporte automáticamente)
+    public Optional<Ticket> crearTicket(Ticket ticket, Long usuarioId) {
         if (!tiposValidos.contains(ticket.getTipoTicket())) {
             return Optional.empty();
         }
-        ticket.setSoporteId(soporteIdAsignado); // asigna soporte fijo
+        ticket.setUsuarioId(usuarioId);
         return Optional.of(ticketRepository.save(ticket));
     }
 

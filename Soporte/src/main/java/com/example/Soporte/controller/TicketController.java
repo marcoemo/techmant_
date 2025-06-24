@@ -79,7 +79,7 @@ public class TicketController {
             return ResponseEntity.badRequest().body("Tipo, usuario y descripción son obligatorios");
         }
 
-        Optional<Ticket> creado = ticketService.crearTicket(ticket);
+        Optional<Ticket> creado = ticketService.crearTicket(ticket, null);
         if (creado.isEmpty()) {
             return ResponseEntity.badRequest().body("Tipo de ticket inválido. Debe ser: Duda, Sugerencia o Reclamo");
         }

@@ -7,11 +7,11 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.beans.factory.annotation.Value;
     
 @Component
-public class SeguimientoClient {
+public class SolicitudClient {
 
     private final WebClient webClient;
 
-  public SeguimientoClient(@Value("${solicitud-service.url}") String baseUrl) {
+  public SolicitudClient(@Value("${solicitud-service.url}") String baseUrl) {
         this.webClient = WebClient.builder()
                 .baseUrl(baseUrl)
                 .build();
