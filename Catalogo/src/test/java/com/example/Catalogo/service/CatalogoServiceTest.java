@@ -5,7 +5,9 @@ import com.example.Catalogo.repository.CatalogoRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +15,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class CatalogoServiceTest {
 
     @Mock
@@ -60,5 +63,91 @@ class CatalogoServiceTest {
         Catalogo resultado = catalogoService.obtenerPorId(999L);
 
         assertNull(resultado);
+    }
+
+    // Tests for eliminarCatalogo
+    @Test
+    void eliminarCatalogo_existente_retornaTrueYElimina() {
+        when(catalogoRepository.existsById(1L)).thenReturn(true);
+
+        boolean resultado = catalogoService.eliminarCatalogo(1L);
+
+        assertTrue(resultado);
+        verify(catalogoRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void eliminarCatalogo_noExistente_retornaFalse() {
+        when(catalogoRepository.existsById(2L)).thenReturn(false);
+
+        boolean resultado = catalogoService.eliminarCatalogo(2L);
+
+        assertFalse(resultado);
+        verify(catalogoRepository, never()).deleteById(anyLong());
+    }
+
+    // Tests for crearCatalogo
+    @Test
+    void crearCatalogo_guardaYRetornaCatalogo() {
+        Catalogo nuevo = new Catalogo(null, "Nuevo", "Descripcion nueva", 12345);
+        Catalogo guardado = new Catalogo(10L, "Nuevo", "Descripcion nueva", 12345);
+
+        when(catalogoRepository.save(nuevo)).thenReturn(guardado);
+
+        Catalogo resultado = catalogoService.crearCatalogo(nuevo);
+
+        assertNotNull(resultado);
+        assertEquals(10L, resultado.getIdCatalogo());
+        assertEquals("Nuevo", resultado.getNombre());
+        verify(catalogoRepository, times(1)).save(nuevo);
+    }
+
+    // Tests for actualizarCatalogo
+    @Test
+    void actualizarCatalogo_existente_actualizaYRetornaCatalogo() {
+        Catalogo existente = new Catalogo(1L, "Viejo", "Desc vieja", 1000);
+        Catalogo nuevo = new Catalogo(1L, "Nuevo", "Desc nueva", 2000);
+
+        when(catalogoRepository.findById(1L)).thenReturn(Optional.of(existente));
+        when(catalogoRepository.save(any(Catalogo.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Catalogo resultado = catalogoService.actualizarCatalogo(1L, nuevo);
+
+        assertNotNull(resultado);
+        assertEquals("Nuevo", resultado.getNombre());
+        assertEquals("Desc nueva", resultado.getDescripcion());
+        assertEquals(2000, resultado.getPrecio());
+        verify(catalogoRepository, times(1)).save(existente);
+    }
+
+    @Test
+    void actualizarCatalogo_noExistente_retornaNull() {
+        Catalogo nuevo = new Catalogo(1L, "Nuevo", "Desc nueva", 2000);
+
+        when(catalogoRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Catalogo resultado = catalogoService.actualizarCatalogo(1L, nuevo);
+
+        assertNull(resultado);
+        verify(catalogoRepository, never()).save(any());
+    }
+
+    @Test
+    void CargarServiciosInciales_agregaServiciosSiNoExisten() {
+        when(catalogoRepository.existsById(anyLong())).thenReturn(false);
+        when(catalogoRepository.save(any(Catalogo.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        catalogoService.CargarServiciosInciales();
+
+        verify(catalogoRepository, times(9)).save(any(Catalogo.class));
+    }
+
+    @Test
+    void CargarServiciosInciales_noAgregaSiYaExisten() {
+        when(catalogoRepository.existsById(anyLong())).thenReturn(true);
+
+        catalogoService.CargarServiciosInciales();
+
+        verify(catalogoRepository, never()).save(any(Catalogo.class));
     }
 }

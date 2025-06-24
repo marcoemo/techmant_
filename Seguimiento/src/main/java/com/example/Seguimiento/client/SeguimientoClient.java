@@ -1,4 +1,4 @@
-package com.example.Seguimiento.webclient;
+package com.example.Seguimiento.client;
 
 import java.util.Map;
 

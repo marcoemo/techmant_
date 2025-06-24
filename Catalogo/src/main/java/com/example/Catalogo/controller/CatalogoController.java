@@ -16,13 +16,13 @@ public class CatalogoController {
     @Autowired
     private CatalogoRepository catalogoRepository;
 
-    // 🔹 Ver todos los catálogos
+    //Ver todos los catálogos
     @GetMapping
     public List<Catalogo> obtenerTodos() {
         return catalogoRepository.findAll();
     }
 
-    // 🔹 Ver uno por ID
+    //Ver uno por ID
     @GetMapping("/{id}")
     public ResponseEntity<Catalogo> obtenerPorId(@PathVariable Long id) {
         return catalogoRepository.findById(id)
@@ -30,14 +30,14 @@ public class CatalogoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 🔸 Crear nuevo catálogo
+    //Crear nuevo catálogo
     @PostMapping
     public ResponseEntity<Catalogo> crearCatalogo(@RequestBody Catalogo nuevo) {
         Catalogo guardado = catalogoRepository.save(nuevo);
         return ResponseEntity.status(201).body(guardado);
     }
 
-    // 🔸 Editar catálogo
+    //Editar catálogo
     @PutMapping("/{id}")
     public ResponseEntity<Catalogo> actualizarCatalogo(@PathVariable Long id, @RequestBody Catalogo actualizado) {
         Optional<Catalogo> catalogoExistente = catalogoRepository.findById(id);
@@ -53,7 +53,7 @@ public class CatalogoController {
         }
     }
 
-    // 🔸 Eliminar catálogo
+    //Eliminar catálogo
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarCatalogo(@PathVariable Long id) {
         if (catalogoRepository.existsById(id)) {

@@ -14,11 +14,11 @@ public class Catalogo {
 
         @Id
         @Column
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long idCatalogo;
 
         @Column(name="nombre_servicio",nullable = false)
         private String nombre;
-
 
         @Column(name="descripcion_servicio",nullable = false)
         private String descripcion;

@@ -61,4 +61,30 @@ public class CatalogoService {
     public Catalogo obtenerPorId(Long id){
         return CR.findById(id).orElse(null);
     }
+
+    //eliminar un servicio del catálogo por id  -- administrador
+    public boolean eliminarCatalogo(Long id){
+        if(CR.existsById(id)){
+            CR.deleteById(id); 
+            return true;
+        }
+        return false;
+    }
+
+    //agregar un nuevo servicio al catálogo -- administrador
+    public Catalogo crearCatalogo(Catalogo catalogo){
+        return CR.save(catalogo);
+    }
+
+    //actualizar un servicio del catálogo por id -- administrador
+    public Catalogo actualizarCatalogo(Long id, Catalogo nuevoCatalogo) {
+        Catalogo actual = obtenerPorId(id);
+        if (actual != null) {
+            actual.setNombre(nuevoCatalogo.getNombre());
+            actual.setDescripcion(nuevoCatalogo.getDescripcion());
+            actual.setPrecio(nuevoCatalogo.getPrecio());
+            return CR.save(actual);
+        }
+        return null;
+    }
 }
