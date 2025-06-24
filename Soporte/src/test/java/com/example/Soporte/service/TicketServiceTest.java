@@ -2,9 +2,11 @@ package com.example.Soporte.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Collections;
 
 import com.example.Soporte.model.Ticket;
@@ -26,76 +28,106 @@ class TicketServiceTest {
     private TicketService ticketService;
 
     @Test
-    void getAllTickets_returnsEmptyList() {
+    void obtenerTickets_retornaListaVacia() {
         when(ticketRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<Ticket> result = ticketService.getTicket();
+        List<Ticket> resultado = ticketService.obtenerTickets();
 
-        assertThat(result).isEmpty();
+        assertThat(resultado).isEmpty();
     }
 
     @Test
-    void getTicketById_returnsTicket() {
-        Ticket ticket = new Ticket(2L, "Ticket 2", 2L);
-        when(ticketRepository.findById(2L)).thenReturn(java.util.Optional.of(ticket));
+    void obtenerTicketPorId_retornaTicket() {
+        Ticket ticket = new Ticket(2L, "Duda", 2L, 4L, "Descripción ejemplo");
+        when(ticketRepository.findById(2L)).thenReturn(Optional.of(ticket));
 
-        Ticket result = ticketService.getTicket(2L);
+        Optional<Ticket> resultado = ticketService.obtenerTicketPorId(2L);
 
-        assertThat(result).isEqualTo(ticket);
+        assertThat(resultado).isPresent();
+        assertThat(resultado.get()).isEqualTo(ticket);
     }
 
     @Test
-    void getTicketById_throwsExceptionWhenNotFound() {
-        when(ticketRepository.findById(99L)).thenReturn(java.util.Optional.empty());
+    void obtenerTicketPorId_retornaVacioSiNoExiste() {
+        when(ticketRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> {
-            ticketService.getTicket(99L);
-        });
+        Optional<Ticket> resultado = ticketService.obtenerTicketPorId(99L);
+
+        assertThat(resultado).isEmpty();
     }
 
     @Test
-    void getTicketsPorUsuario_returnsList() {
-        Ticket ticket = new Ticket(3L, "Ticket 3", 5L);
+    void obtenerTicketsPorUsuario_retornaLista() {
+        Ticket ticket = new Ticket(3L, "Reclamo", 5L, 4L, "Sistema lento");
         when(ticketRepository.findByUsuarioId(5L)).thenReturn(List.of(ticket));
 
-        List<Ticket> result = ticketService.getTicketsPorUsuario(5L);
+        List<Ticket> resultado = ticketService.obtenerTicketsPorUsuario(5L);
 
-        assertThat(result).containsExactly(ticket);
+        assertThat(resultado).containsExactly(ticket);
     }
 
     @Test
-    void saveTicket_returnsSavedTicket() {
-        Ticket ticketToSave = new Ticket(null, "Nuevo Ticket", 4L);
-        Ticket savedTicket = new Ticket(10L, "Nuevo Ticket", 4L);
-        when(ticketRepository.save(ticketToSave)).thenReturn(savedTicket);
+    void crearTicket_retornaTicketCreado() {
+        Ticket ticketACrear = new Ticket(null, "Sugerencia", 4L, null, "Nueva funcionalidad");
+        Ticket ticketCreado = new Ticket(10L, "Sugerencia", 4L, 4L, "Nueva funcionalidad");
 
-        Ticket result = ticketService.saveTicket(ticketToSave);
+        when(ticketRepository.save(any(Ticket.class))).thenReturn(ticketCreado);
 
-        assertThat(result).isEqualTo(savedTicket);
+        Optional<Ticket> resultado = ticketService.crearTicket(ticketACrear);
+
+        assertThat(resultado).isPresent();
+        assertThat(resultado.get().getIdTicket()).isEqualTo(10L);
+        assertThat(resultado.get().getSoporteId()).isEqualTo(4L);
     }
 
     @Test
-    void actualizarTicket_returnsUpdatedTicket() {
-        Ticket ticketExistente = new Ticket(7L, "Duda o sugerencia", 1L);
-        Ticket ticketNuevo = new Ticket(null, "Duda o sugerencia", 8L);
-        Ticket ticketFinal = new Ticket(7L, "Duda o sugerencia", 8L);
+    void crearTicket_retornaVacioConTipoInvalido() {
+        Ticket ticketInvalido = new Ticket(null, "Invalido", 4L, null, "Tipo incorrecto");
 
-        when(ticketRepository.findById(7L)).thenReturn(java.util.Optional.of(ticketExistente));
-        when(ticketRepository.save(any(Ticket.class))).thenReturn(ticketFinal);
+        Optional<Ticket> resultado = ticketService.crearTicket(ticketInvalido);
 
-        Ticket result = ticketService.actualizarTicket(7L, ticketNuevo);
-
-        assertThat(result.getIdTicket()).isEqualTo(7L);
-        assertThat(result.getDudaSug()).isEqualTo("Duda o sugerencia");
-        assertThat(result.getUsuarioId()).isEqualTo(8L);
+        assertThat(resultado).isEmpty();
+        verify(ticketRepository, never()).save(any());
     }
 
     @Test
-    void eliminarTicket_removesTicket() {
-        doNothing().when(ticketRepository).deleteById(11L);
+    void actualizarTicket_retornaTicketActualizado() {
+        Ticket ticketExistente = new Ticket(7L, "Duda", 1L, 4L, "Antigua descripción");
+        Ticket ticketNuevo = new Ticket(null, "Duda", 8L, null, "Descripción actualizada");
+        Ticket ticketGuardado = new Ticket(7L, "Duda", 8L, 4L, "Descripción actualizada");
 
-        ticketService.eliminarTicket(11L);
+        when(ticketRepository.findById(7L)).thenReturn(Optional.of(ticketExistente));
+        when(ticketRepository.save(any(Ticket.class))).thenReturn(ticketGuardado);
 
-        verify(ticketRepository, times(1)).deleteById(11L);
+        Optional<Ticket> resultado = ticketService.actualizarTicket(7L, ticketNuevo);
+
+        assertThat(resultado).isPresent();
+        assertThat(resultado.get().getUsuarioId()).isEqualTo(8L);
+        assertThat(resultado.get().getDescripcion()).isEqualTo("Descripción actualizada");
     }
+
+   @Test
+ void actualizarTicket_retornaVacioSiNoExiste() {
+    when(ticketRepository.findById(99L)).thenReturn(Optional.empty());
+
+    // No pasar campos nulos en dudaSug o tipoTicket
+    Ticket ticketParaActualizar = new Ticket(null, "Duda", 8L, null, "Descripción válida");
+
+    Optional<Ticket> resultado = ticketService.actualizarTicket(99L, ticketParaActualizar);
+
+    assertThat(resultado).isEmpty();
+    verify(ticketRepository, never()).save(any());
+}
+
+   @Test
+    void eliminarTicket_verificaLlamadaDelete() {
+    when(ticketRepository.existsById(11L)).thenReturn(true); // mockea existencia
+
+    doNothing().when(ticketRepository).deleteById(11L);
+
+    ticketService.eliminarTicket(11L);
+
+    verify(ticketRepository, times(1)).deleteById(11L);
+}
+
 }
