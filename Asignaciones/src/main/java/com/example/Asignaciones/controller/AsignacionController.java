@@ -86,10 +86,17 @@ public class AsignacionController {
     )
     @PutMapping("/{id}/disponibilidad")
     public ResponseEntity<String> modificarDisponibilidad(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        String nuevaDisponibilidad = body.get("nuevaDisponibilidad");
-        AS.modificarDisponibilidad(id, nuevaDisponibilidad);
-        return ResponseEntity.ok("Tecnico modificado");
+    String nuevaDisponibilidad = body.get("nuevaDisponibilidad");
+    if (nuevaDisponibilidad == null) {
+        return ResponseEntity.badRequest().body("Falta el campo 'nuevaDisponibilidad'");
     }
+    boolean modificado = AS.modificarDisponibilidad(id, nuevaDisponibilidad);
+    if (modificado) {
+        return ResponseEntity.ok("Tecnico modificado");
+    } else {
+        return ResponseEntity.notFound().build();
+    }
+}
 
     @Operation(
         summary = "Agregar un nuevo técnico",

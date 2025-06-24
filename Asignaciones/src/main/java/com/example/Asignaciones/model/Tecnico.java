@@ -39,8 +39,5 @@ public class Tecnico {
     this.disponibilidad = nuevaDisponibilidad;
   }
 
-  public void setNombre(String nombre) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'setNombre'");
-  }
+  
 }

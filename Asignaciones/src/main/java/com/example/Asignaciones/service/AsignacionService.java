@@ -33,13 +33,15 @@ public class AsignacionService {
     }
 
     // Modificar disponibilidad por ID
-    public void modificarDisponibilidad(Long id, String nuevaDisponibilidad) {
-        Tecnico tecnico = AR.findById(id).orElse(null);
-        if (tecnico != null) {
-            tecnico.setDisponibilidad(nuevaDisponibilidad);
-            AR.save(tecnico);
-        }
+    public boolean modificarDisponibilidad(Long id, String nuevaDisponibilidad) {
+    Tecnico tecnico = AR.findById(id).orElse(null);
+    if (tecnico != null) {
+        tecnico.setDisponibilidad(nuevaDisponibilidad);
+        AR.save(tecnico);
+        return true;
     }
+    return false;
+}
 
     public Tecnico agregarTecnico(String nombre, String disponibilidad, Long usuarioId, Long solicitudId) {
         Tecnico nuevo = new Tecnico();

@@ -12,9 +12,9 @@ public class OpenApiConfig {
     public OpenAPI apiInfo(){
         return new OpenAPI()
         .info(new Info()
-            .title("Equipos de los Clientes y Las categorias")
+            .title("Auth del sistema")
             .version("1.0")
-            .description("API para gestionar los equipos de los clientes y categorias, incluyendo operaciones CRUD y consultas específicas."));
+            .description("API para la auth del sistema"));
     }
 
 }

@@ -12,9 +12,9 @@ public class OpenApiConfig {
     public OpenAPI apiInfo(){
         return new OpenAPI()
         .info(new Info()
-            .title("Asignación de los tecnicos")
+            .title("Catalogo de solicitudes")
             .version("1.0")
-            .description("API para asignar tecnicos, incluyendo operaciones CRUD y consultas específicas."));
+            .description("Catalogo, incluyendo operaciones CRUD y consultas específicas."));
     }
 
 }
