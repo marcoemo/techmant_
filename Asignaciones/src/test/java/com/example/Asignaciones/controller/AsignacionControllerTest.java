@@ -94,9 +94,9 @@ public class AsignacionControllerTest {
     @Test
     void agregarTecnico_devuelveTecnicoCreado() throws Exception {
         Tecnico tecnico = new Tecnico(3L, 2L, "Disponible", 5L);
-        Mockito.when(asignacionService.agregarTecnico("Juan", "Disponible", 2L, 5L)).thenReturn(tecnico);
+        Mockito.when(asignacionService.agregarTecnico("Disponible", 2L, 5L)).thenReturn(tecnico);
 
-        String body = "{\"nombre\":\"Juan\",\"disponibilidad\":\"Disponible\",\"usuarioId\":\"2\",\"solicitudId\":\"5\"}";
+        String body = "{\"disponibilidad\":\"Disponible\",\"usuarioId\":\"2\",\"solicitudId\":\"5\"}";
 
         mockMvc.perform(post("/asignacion")
                 .contentType(MediaType.APPLICATION_JSON)

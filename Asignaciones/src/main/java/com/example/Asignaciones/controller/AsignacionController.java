@@ -44,6 +44,28 @@ public class AsignacionController {
         return AS.obtenerTodos();
     }
 
+    @Operation(
+        summary = "Obtener técnicos con usuario y solicitud",
+        description = "Obtiene la lista de técnicos junto con sus IDs de usuario y solicitud",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Lista de técnicos con usuario y solicitud",
+                content = @Content(mediaType = "application/json"))
+        }
+    )
+    @GetMapping("/con-usuario-solicitud")
+    public List<Map<String, Object>> obtenerTecnicosConUsuarioYSolicitud() {
+        List<Tecnico> tecnicos = AS.obtenerTodos();
+        List<Map<String, Object>> resultado = new java.util.ArrayList<>();
+        for (Tecnico tecnico : tecnicos) {
+            Map<String, Object> map = new java.util.HashMap<>();
+            map.put("tecnico", tecnico);
+            map.put("usuarioId", tecnico.getUsuarioId());
+            map.put("solicitudId", tecnico.getSolicitudId());
+            resultado.add(map);
+        }
+        return resultado;
+    }
+
     // Obtener técnico por ID (cambiado por el web client)
     @Operation(
         summary = "Obtener técnico por ID",
@@ -102,18 +124,35 @@ public class AsignacionController {
         summary = "Agregar un nuevo técnico",
         description = "Agrega un nuevo técnico al sistema",
         responses = {
-            @ApiResponse(responseCode = "200", description = "Técnico agregado",
+            @ApiResponse(responseCode = "201", description = "Técnico agregado",
                 content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = Tecnico.class))),
             @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
         }
     )
+
     @PostMapping
-    public Tecnico agregarTecnico(@RequestBody Map<String, String> body) {
-        String nombre = body.get("nombre");
-        String disponibilidad = body.get("disponibilidad");
-        Long usuarioId = Long.parseLong(body.get("usuarioId"));
-        Long solicitudId = Long.parseLong(body.get("solicitudId"));
-        return AS.agregarTecnico(nombre, disponibilidad, usuarioId, solicitudId);
+    public ResponseEntity<?> agregarTecnico(@RequestBody Map<String, Object> body) {
+    try {
+        String disponibilidad = (String) body.get("disponibilidad");
+        Object usuarioIdObj = body.get("usuarioId");
+        Object solicitudIdObj = body.get("solicitudId");
+
+        if (disponibilidad == null || usuarioIdObj == null || solicitudIdObj == null) {
+            return ResponseEntity.badRequest().body("Faltan campos obligatorios");
+        }
+
+        Long usuarioId = Long.parseLong(usuarioIdObj.toString());
+        Long solicitudId = Long.parseLong(solicitudIdObj.toString());
+
+        Tecnico tecnico = AS.agregarTecnico(disponibilidad, usuarioId, solicitudId);
+        if (tecnico == null) {
+            return ResponseEntity.status(409).body("Ya existe un técnico con ese usuarioId y solicitudId");
+        }
+        return ResponseEntity.status(201).body(tecnico);
+    } catch (Exception e) {
+        return ResponseEntity.badRequest().body("Datos de entrada inválidos: " + e.getMessage());
     }
+}
+
 }

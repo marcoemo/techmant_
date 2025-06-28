@@ -28,7 +28,7 @@ public class AuthService {
             String contrasenaEncriptada = usuario.get("contrasena").toString();
             boolean coincide = passwordEncoder.matches(contrasena, contrasenaEncriptada);
 
-            return coincide ? "Datos Coinciden" : "Contraseña no válida";
+            return coincide ? "Datos Coinciden" : "Datos no validos";
 
         } catch (Exception e) {
             return "Error al autenticar: " + e.getMessage();

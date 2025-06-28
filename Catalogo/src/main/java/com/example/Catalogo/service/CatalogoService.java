@@ -22,26 +22,44 @@ public class CatalogoService {
             this.CR=CR;
     }
     @PostConstruct
-public void CargarServiciosInciales() {
-    try {
-        // Limpia la tabla antes de insertar (solo para datos de ejemplo)
-        CR.deleteAll();
+    public void init() {
+        // IDs y datos de ejemplo para inicializar el catálogo
+        List<Catalogo> catalogosIniciales = List.of(
+            crearCatalogoInicial("Reparación","Reparación de fallas de hardware y software en notebooks.", 20000),
+            crearCatalogoInicial("Instalación de software","Instalación y configuración de programas y sistemas.",10000),
+            crearCatalogoInicial("Mantenimiento preventivo de equipos","Revisión y limpieza para prevenir fallas técnicas.",15000),
+            crearCatalogoInicial("Formateo y respaldo de datos","Respaldo de archivos y formateo completo del equipo.",19990),
+            crearCatalogoInicial("Revisión técnica de hardware","Chequeo de componentes internos y funcionamiento.",23500),
+            crearCatalogoInicial("Limpieza interna de equipos","Limpieza física interna para mejorar rendimiento.",15990),
+            crearCatalogoInicial("Diagnóstico general","Evaluación completa del equipo y sus fallas.",30000),
+            crearCatalogoInicial("Configuración de red local","Instalación y ajuste de redes domésticas u oficina.",50000),
+            crearCatalogoInicial("Asesoría en compras de tecnología","Recomendaciones para adquirir tecnología adecuada.",10000)
+        );
 
-        CR.save(new Catalogo(1L,"Reparación","Reparación de fallas de hardware y software en notebooks.", 20000));
-        CR.save(new Catalogo(2L,"Instalación de software","Instalación y configuración de programas y sistemas.",10000));
-        CR.save(new Catalogo(3L,"Mantenimiento preventivo de equipos","Revisión y limpieza para prevenir fallas técnicas.",15000));
-        CR.save(new Catalogo(4L,"Formateo y respaldo de datos","Respaldo de archivos y formateo completo del equipo.",19990));
-        CR.save(new Catalogo(5L,"Revisión técnica de hardware","Chequeo de componentes internos y funcionamiento.",23500));
-        CR.save(new Catalogo(6L,"Limpieza interna de equipos","Limpieza física interna para mejorar rendimiento.",15990));
-        CR.save(new Catalogo(7L,"Diagnóstico general","Evaluación completa del equipo y sus fallas.",30000));
-        CR.save(new Catalogo(8L,"Configuración de red local","Instalación y ajuste de redes domésticas u oficina.",50000));
-        CR.save(new Catalogo(9L,"Asesoría en compras de tecnología","Recomendaciones para adquirir tecnología adecuada.",10000));
-        System.out.println("Servicios iniciales del catálogo cargados correctamente.");
-    } catch (Exception e) {
-        System.err.println("Error al cargar servicios iniciales del catálogo: " + e.getMessage());
-        e.printStackTrace();
+        crearCatalogosSiNoExisten(catalogosIniciales);
     }
-}
+
+    private Catalogo crearCatalogoInicial(String nombre, String descripcion, int precio) {
+        Catalogo catalogo = new Catalogo();
+        catalogo.setNombre(nombre);
+        catalogo.setDescripcion(descripcion);
+        catalogo.setPrecio(precio);
+        return catalogo;
+    }
+
+    private void crearCatalogosSiNoExisten(List<Catalogo> catalogos) {
+        int creados = 0;
+        for (Catalogo catalogo : catalogos) {
+            if (CR.findAll().stream().noneMatch(c -> c.getNombre().equalsIgnoreCase(catalogo.getNombre()))) {
+                CR.save(catalogo);
+                creados++;
+                System.out.println("Catálogo creado: " + catalogo.getNombre());
+            }
+        }
+        System.out.println("Total catálogos creados: " + creados + "/" + catalogos.size());
+    }
+
+    
     public List<Catalogo> obtenerCatalogo(){
         return CR.findAll();
     }

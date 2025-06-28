@@ -18,9 +18,8 @@ public class Tecnico {
   @Column
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Schema(description = "Identificador único de la asignación", example = "1")
-  private Long IdAsignacion;
+  private Long idAsignacion;
 
-  @Column(unique = true)
   @Schema(description = "Identificador único del usuario asociado al técnico", example = "1001")
   private Long usuarioId;
 

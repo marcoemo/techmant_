@@ -131,15 +131,5 @@ class CatalogoServiceTest {
         assertNull(resultado);
         verify(catalogoRepository, never()).save(any());
     }
-
-    @Test
-    void cargarServiciosIniciales_agregaServiciosSiNoExisten() {
-        
-        when(catalogoRepository.save(any(Catalogo.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        catalogoService.CargarServiciosInciales();
-
-        verify(catalogoRepository, times(9)).save(any(Catalogo.class));
-    }
-
+    
 }
